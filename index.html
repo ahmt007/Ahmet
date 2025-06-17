@@ -2,86 +2,95 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ahmet Tekeli Erkek Kuaförü</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap');
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-image: url('https://i.ibb.co/NjTpb9G/barber-bg.jpg');
+      font-family: 'Rubik', sans-serif;
+      background: url('background.jpg') no-repeat center center fixed;
       background-size: cover;
-      background-position: center;
-      backdrop-filter: blur(5px);
-      color: yellow;
+      color: #f9e79f;
     }
-    .container {
-      background-color: rgba(0,0,0,0.7);
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-      margin-top: 50px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px black;
+    .overlay {
+      background: rgba(0, 0, 0, 0.75);
+      min-height: 100vh;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     h1 {
+      font-size: 36px;
       text-align: center;
-      font-size: 32px;
-      margin-bottom: 30px;
-      animation: fadein 2s ease-in-out;
+      color: #ffe066;
+      text-shadow: 2px 2px 6px #000;
+      animation: glow 2s infinite alternate;
     }
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #ffd700; }
+      to { text-shadow: 0 0 20px #ffef8a; }
     }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    input, select, button {
+    form {
+      max-width: 500px;
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+    }
+    label, select, input, button {
+      display: block;
+      width: 100%;
       margin-bottom: 15px;
-      border-radius: 5px;
-      border: none;
       font-size: 16px;
+      color: #f9e79f;
+    }
+    input, select {
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
     }
     button {
-      background-color: orange;
-      color: white;
+      padding: 12px;
+      background: linear-gradient(45deg, #f1c40f, #e67e22);
+      border: none;
+      border-radius: 6px;
+      color: #000;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: transform 0.3s ease;
     }
     button:hover {
-      background-color: darkorange;
+      transform: scale(1.05);
     }
-    footer {
+    #mesaj {
+      margin-top: 10px;
       text-align: center;
-      color: #ccc;
-      font-size: 14px;
-      margin-top: 30px;
+      font-size: 15px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="overlay">
     <h1>AHMET TEKELİ ERKEK KUAFÖRÜ</h1>
-    <form id="randevuForm" action="https://script.google.com/macros/s/AKfycbzAHkmRHrgTaImPlLWBZYwY6Xi32_fENWc89unFh2eiIdif56SfQ-wd8g45lxoDTxQX/exec" method="POST">
-      <label for="adsoyad">Ad Soyad</label>
-      <input type="text" name="AdSoyad" required>
+    <form id="randevuForm">
+      <label>Ad Soyad</label>
+      <input type="text" name="adsoyad" required>
 
-      <label for="telefon">Telefon</label>
-      <input type="tel" name="Telefon" required>
+      <label>Telefon</label>
+      <input type="tel" name="telefon" required>
 
-      <label for="tarih">Tarih</label>
-      <input type="date" name="Tarih" required>
+      <label>Tarih</label>
+      <input type="date" name="tarih" required>
 
-      <label for="saat">Saat</label>
-      <select name="Saat" required>
-        <option value="">Saat seçin</option>
+      <label>Saat</label>
+      <select name="saat" required>
+        <option value="">Saat Seçiniz</option>
         <option>09:00</option>
         <option>10:00</option>
         <option>11:00</option>
@@ -93,11 +102,10 @@
         <option>17:00</option>
         <option>18:00</option>
         <option>19:00</option>
-        <option>20:00</option>
       </select>
 
-      <label for="hizmet">Hizmet</label>
-      <select name="Hizmet" required>
+      <label>Hizmet</label>
+      <select name="hizmet" required>
         <option value="">Seçiniz</option>
         <option>Saç Kesimi</option>
         <option>Sakal Kesimi</option>
@@ -105,9 +113,39 @@
         <option>Çocuk Saç Kesimi</option>
       </select>
 
-      <button type="submit">RANDEVU AL</button>
+      <button type="submit">Randevu Al</button>
+      <div id="mesaj"></div>
     </form>
-    <footer>© 2025 Ahmet Tekeli | Randevu Sistemi</footer>
   </div>
+
+  <script>
+    document.getElementById("randevuForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      fetch("https://script.google.com/macros/s/AKfycbzAHkmRHrgTaImPlLWBZYwY6Xi32_fENWc89unFh2eiIdif56SfQ-wd8g45lxoDTxQX/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.json())
+      .then(response => {
+        const mesaj = document.getElementById("mesaj");
+        if (response.success) {
+          mesaj.textContent = "Randevunuz alındı.";
+          mesaj.style.color = "lightgreen";
+          form.reset();
+        } else {
+          mesaj.textContent = "Bu saat dolu. Başka saat deneyin.";
+          mesaj.style.color = "red";
+        }
+      })
+      .catch(err => {
+        document.getElementById("mesaj").textContent = "Bir hata oluştu.";
+        console.error(err);
+      });
+    });
+  </script>
 </body>
 </html>
