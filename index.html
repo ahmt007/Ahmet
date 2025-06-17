@@ -4,99 +4,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ahmet Tekeli Erkek Kuaförü - Randevu</title>
+  <title>Ahmet Tekeli Erkek Kuaförü</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&display=swap');
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Roboto Slab', serif;
-    }
     body {
-      background: url('https://images.unsplash.com/photo-1588776814546-ec7d04c85d28?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('https://i.ibb.co/NjTpb9G/barber-bg.jpg');
       background-size: cover;
-      color: #FFD700;
-      padding: 20px;
+      background-position: center;
+      backdrop-filter: blur(5px);
+      color: yellow;
     }
     .container {
-      background: rgba(0, 0, 0, 0.7);
-      max-width: 600px;
+      background-color: rgba(0,0,0,0.7);
+      max-width: 500px;
       margin: auto;
-      padding: 30px;
+      padding: 20px;
+      margin-top: 50px;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+      box-shadow: 0 0 10px black;
     }
     h1 {
       text-align: center;
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      animation: slideDown 1s ease-out;
+      font-size: 32px;
+      margin-bottom: 30px;
+      animation: fadein 2s ease-in-out;
     }
-    @keyframes slideDown {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     label {
       display: block;
-      margin: 15px 0 5px;
+      margin-top: 10px;
+      font-weight: bold;
     }
     input, select, button {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
-      border: none;
+      margin-bottom: 15px;
       border-radius: 5px;
-      font-size: 1rem;
-    }
-    input, select {
-      background: #333;
-      color: #FFD700;
+      border: none;
+      font-size: 16px;
     }
     button {
-      background: linear-gradient(45deg, #f39c12, #e74c3c);
+      background-color: orange;
       color: white;
+      font-weight: bold;
       cursor: pointer;
-      font-weight: bold;
-      margin-top: 20px;
+      transition: background 0.3s;
     }
-    #mesaj {
-      margin-top: 20px;
-      text-align: center;
-      font-weight: bold;
+    button:hover {
+      background-color: darkorange;
     }
     footer {
       text-align: center;
-      margin-top: 30px;
-      font-size: 0.9rem;
       color: #ccc;
+      font-size: 14px;
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>AHMET TEKELİ<br>ERKEK KUAFÖRÜ</h1>
-    <form id="randevuForm">
-      <label>Ad Soyad</label>
-      <input type="text" name="adsoyad" required />
+    <h1>AHMET TEKELİ ERKEK KUAFÖRÜ</h1>
+    <form action="https://script.google.com/macros/s/AKfycbwKni3_TAgf3Ev9lJN0jsW9_H935Lp1x4w-P9lB8VdEOH9pkvNUQYe77CYPssuDg1IV/exec" method="POST">
+      <label for="adsoyad">Ad Soyad</label>
+      <input type="text" name="AdSoyad" required>
 
-      <label>Telefon</label>
-      <input type="tel" name="telefon" required />
+      <label for="telefon">Telefon</label>
+      <input type="tel" name="Telefon" required>
 
-      <label>Tarih</label>
-      <input type="date" name="tarih" required />
+      <label for="tarih">Tarih</label>
+      <input type="date" name="Tarih" required>
 
-      <label>Saat</label>
-      <select name="saat" required>
-        <option value="">Saat Seçiniz</option>
-        <option>09:00</option><option>10:00</option><option>11:00</option>
-        <option>12:00</option><option>13:00</option><option>14:00</option>
-        <option>15:00</option><option>16:00</option><option>17:00</option>
-        <option>18:00</option><option>19:00</option><option>20:00</option>
+      <label for="saat">Saat</label>
+      <select name="Saat" required>
+        <option value="">Saat seçin</option>
+        <option>09:00</option>
+        <option>10:00</option>
+        <option>11:00</option>
+        <option>12:00</option>
+        <option>13:00</option>
+        <option>14:00</option>
+        <option>15:00</option>
+        <option>16:00</option>
+        <option>17:00</option>
+        <option>18:00</option>
+        <option>19:00</option>
+        <option>20:00</option>
       </select>
 
-      <label>Hizmet</label>
-      <select name="hizmet" required>
+      <label for="hizmet">Hizmet</label>
+      <select name="Hizmet" required>
         <option value="">Seçiniz</option>
         <option>Saç Kesimi</option>
         <option>Sakal Kesimi</option>
@@ -105,40 +106,8 @@
       </select>
 
       <button type="submit">RANDEVU AL</button>
-      <div id="mesaj"></div>
     </form>
     <footer>© 2025 Ahmet Tekeli | Randevu Sistemi</footer>
   </div>
-
-  <script>
-    document.getElementById("randevuForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-
-      fetch("https://script.google.com/macros/s/AKfycbwKni3_TAgf3Ev9lJN0jsW9_H935Lp1x4w-P9lB8VdEOH9pkvNUQYe77CYPssuDg1IV/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-      })
-      .then(res => res.json())
-      .then(response => {
-        const mesaj = document.getElementById("mesaj");
-        if (response.success) {
-          mesaj.textContent = "Randevunuz başarıyla alındı.";
-          mesaj.style.color = "lightgreen";
-          form.reset();
-        } else {
-          mesaj.textContent = response.message || "Bu saat dolu. Lütfen başka bir saat seçin.";
-          mesaj.style.color = "tomato";
-        }
-      })
-      .catch(error => {
-        document.getElementById("mesaj").textContent = "Bir hata oluştu. Lütfen tekrar deneyin.";
-        console.error("Hata:", error);
-      });
-    });
-  </script>
 </body>
 </html>
