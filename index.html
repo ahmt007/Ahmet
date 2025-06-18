@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ahmet Tekeli Randevu</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body {
+      height: 100vh;
+      background: url('https://images.unsplash.com/photo-1588776814546-ec7b2cf3fc6d?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .glass {
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      color: #FFD700;
+      animation: fadeIn 1.2s ease-out;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.2em;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+      color: #FFD700;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.9);
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(to right, #FFD700, #FFB300);
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #000;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.85;
+    }
+    footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="glass">
+    <h1>AHMET TEKELİ<br>ERKEK KUAFÖRÜ</h1>
+    <form id="randevuForm">
+      <label>Ad Soyad</label>
+      <input type="text" name="adsoyad" required />
+
+      <label>Telefon</label>
+      <input type="tel" name="telefon" required />
+
+      <label>Tarih</label>
+      <input type="date" name="tarih" required />
+
+      <label>Saat</label>
+      <select name="saat" required>
+        <option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option>
+        <option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option>
+        <option>17:00</option><option>18:00</option><option>19:00</option><option>20:00</option>
+      </select>
+
+      <label>Hizmet</label>
+      <select name="hizmet" required>
+        <option>Saç Kesimi</option>
+        <option>Sakal Kesimi</option>
+        <option>Saç + Sakal Kesimi</option>
+        <option>Çocuk Saç Kesimi</option>
+      </select>
+
+      <button type="submit">RANDEVU AL</button>
+    </form>
+    <footer>© 2025 Ahmet Tekeli | Randevu Sistemi</footer>
+  </div>
+
+  <script>
+    document.getElementById("randevuForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      fetch("https://script.google.com/macros/s/AKfycbwQHA0a7_0ij2KDyHyGPmnDweBX3DAXYaxoFgeU8Ss2UmJTDTzqwNQH3GCzwkXod0tM/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      alert("Randevunuz gönderildi. WhatsApp bildirimi size ulaşacak.");
+      e.target.reset();
+    });
+  </script>
+</body>
+</html>
