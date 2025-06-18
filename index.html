@@ -2,147 +2,153 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ahmet Tekeli Randevu</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: url('background.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: #FFD700;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      background: rgba(0, 0, 0, 0.75);
-      padding: 30px 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 450px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-      animation: fadeIn 1.5s ease-out;
-    }
-
-    h1 {
-      text-align: center;
-      font-size: 26px;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
-      animation: slideDown 1s ease-out;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: none;
-      font-size: 15px;
-    }
-
-    input, select {
-      background-color: #1a1a1a;
-      color: #FFD700;
-    }
-
-    button {
-      background: linear-gradient(45deg, #FFD700, #FFA500);
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 20px;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      transform: scale(1.05);
-    }
-
-    #mesaj {
-      margin-top: 15px;
-      text-align: center;
-      font-size: 15px;
-    }
-
-    @keyframes fadeIn {
-      from {opacity: 0; transform: scale(0.9);}
-      to {opacity: 1; transform: scale(1);}
-    }
-
-    @keyframes slideDown {
-      from {opacity: 0; transform: translateY(-20px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Ahmet Tekeli Erkek Kuaförü</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: url('https://images.unsplash.com/photo-1604147495792-22f3b8c8d3cd') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            backdrop-filter: blur(8px);
+            color: #FFD700;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        h1 {
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 8px black;
+            animation: slideDown 1.5s ease-out;
+        }
+        @keyframes slideDown {
+            from {transform: translateY(-50px); opacity: 0;}
+            to {transform: translateY(0); opacity: 1;}
+        }
+        form {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            width: 300px;
+        }
+        label, select, input {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+        input, select {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        button {
+            width: 100%;
+            background-color: gold;
+            color: black;
+            font-weight: bold;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: orange;
+            cursor: pointer;
+        }
+        #mesaj {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>AHMET TEKELİ <br> ERKEK KUAFÖRÜ</h1>
+    <h1>AHMET TEKELİ<br>ERKEK KUAFÖRÜ</h1>
     <form id="randevuForm">
-      <label>Ad Soyad</label>
-      <input type="text" name="name" required />
-      <label>Telefon</label>
-      <input type="tel" name="phone" required />
-      <label>Tarih</label>
-      <input type="date" name="date" required />
-      <label>Saat</label>
-      <select name="time" required>
-        <option value="">Saat Seçin</option>
-        <option>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option>
-        <option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
-        <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option>
-        <option>15:00</option><option>15:30</option><option>16:00</option><option>16:30</option>
-        <option>17:00</option><option>17:30</option>
-      </select>
-      <label>Hizmet</label>
-      <select name="service" required>
-        <option>Saç Kesimi</option>
-        <option>Sakal Kesimi</option>
-        <option>Yıkama</option>
-        <option>Çocuk Tıraşı</option>
-      </select>
-      <button type="submit">Randevu Al</button>
-      <div id="mesaj"></div>
+        <label>Ad Soyad</label>
+        <input type="text" name="ad" required />
+
+        <label>Telefon</label>
+        <input type="tel" name="telefon" required />
+
+        <label>Tarih</label>
+        <input type="date" name="tarih" required />
+
+        <label>Saat</label>
+        <select name="saat" required>
+            <option value="">Seçiniz</option>
+            <option>09:00</option>
+            <option>10:00</option>
+            <option>11:00</option>
+            <option>12:00</option>
+            <option>13:00</option>
+            <option>14:00</option>
+            <option>15:00</option>
+            <option>16:00</option>
+            <option>17:00</option>
+            <option>18:00</option>
+            <option>19:00</option>
+            <option>20:00</option>
+        </select>
+
+        <label>Hizmet</label>
+        <select name="hizmet" required>
+            <option value="">Seçiniz</option>
+            <option>Saç Kesimi</option>
+            <option>Sakal Kesimi</option>
+            <option>Saç + Sakal Kesimi</option>
+            <option>Çocuk Saç Kesimi</option>
+        </select>
+
+        <button type="submit">RANDEVU AL</button>
+        <div id="mesaj"></div>
     </form>
-  </div>
-  <script>
-    document.getElementById("randevuForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      const data = Object.fromEntries(formData.entries());
-      fetch("https://script.google.com/macros/s/AKfycbzAHkmRHrgTaImPlLWBZYwY6Xi32_fENWc89unFh2eiIdif56SfQ-wd8g45lxoDTxQX/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-      })
-      .then(res => res.json())
-      .then(response => {
-        const msg = document.getElementById("mesaj");
-        if (response.success) {
-          msg.textContent = "Randevunuz başarıyla alındı.";
-          msg.style.color = "lightgreen";
-          document.getElementById("randevuForm").reset();
-        } else {
-          msg.textContent = response.message || "Bu saat dolu.";
-          msg.style.color = "red";
-        }
-      })
-      .catch(err => {
-        document.getElementById("mesaj").textContent = "Bir hata oluştu. Tekrar deneyin.";
-      });
-    });
-  </script>
+
+    <script>
+        document.getElementById("randevuForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            fetch("https://script.google.com/macros/s/AKfycbzAHkmRHrgTaImPlLWBZYwY6Xi32_fENWc89unFh2eiIdif56SfQ-wd8g45lxoDTxQX/exec", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(res => res.json())
+            .then(response => {
+                const mesaj = document.getElementById("mesaj");
+                if (response.success) {
+                    mesaj.textContent = "Randevunuz başarıyla alındı. WhatsApp'tan bilgi gönderildi.";
+                    mesaj.style.color = "lightgreen";
+                    form.reset();
+                } else {
+                    mesaj.textContent = response.message || "Bu saat dolu. Lütfen başka bir saat seçin.";
+                    mesaj.style.color = "tomato";
+                }
+            })
+            .catch(error => {
+                document.getElementById("mesaj").textContent = "Bir hata oluştu. Lütfen tekrar deneyin.";
+                console.error("Hata:", error);
+            });
+        });
+    </script>
 </body>
 </html>
