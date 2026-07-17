@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+<!DOC// Tarayıcı uyumluluğu için storage tanımlaması
+(window as any).storage = {
+  get: (key: string) => Promise.resolve(localStorage.getItem(key)),
+  set: (key: string, val: string) => { localStorage.setItem(key, val); return Promise.resolve(); }
+};
+
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Scissors, Calendar, Clock, Phone, User, ChevronDown, Check, X,
