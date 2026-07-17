@@ -1,133 +1,1012 @@
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ahmet Tekeli Randevu</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    body {
-      height: 100vh;
-      background: url('https://images.unsplash.com/photo-1588776814546-ec7b2cf3fc6d?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .glass {
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
-      padding: 40px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 500px;
-      color: #FFD700;
-      animation: fadeIn 1.2s ease-out;
-    }
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.2em;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
-      color: #FFD700;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: none;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.9);
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(to right, #FFD700, #FFB300);
-      border: none;
-      border-radius: 6px;
-      font-size: 1em;
-      font-weight: bold;
-      color: #000;
-      cursor: pointer;
-    }
-    button:hover {
-      opacity: 0.85;
-    }
-    footer {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 0.9em;
-      color: #ccc;
-    }
-  </style>
-</head>
-<body>
-  <div class="glass">
-    <h1>AHMET TEKELİ<br>ERKEK KUAFÖRÜ</h1>
-    <form id="randevuForm">
-      <label>Ad Soyad</label>
-      <input type="text" name="adsoyad" required />
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  Scissors, Calendar, Clock, Phone, User, ChevronDown, Check, X,
+  Trash2, Plus, LogOut, Lock, Star, Users, Briefcase, LayoutDashboard,
+  ArrowLeft, CalendarDays, BadgeCheck, Ban, Loader2, Eye, EyeOff, Settings
+} from "lucide-react";
 
-      <label>Telefon</label>
-      <input type="tel" name="telefon" required />
+const DEFAULT_CONFIG = {
+  business: { name: "AHMET TEKELİ", subtitle: "ERKEK KUAFÖRÜ", rating: 4.5, reviewCount: 172, adminPassword: "123456" },
+  barbers: [
+    { id: "b1", name: "Efe KARA", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] },
+    { id: "b2", name: "Ahmet TEKELİ", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] },
+    { id: "b3", name: "Mert YILMAZ", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] },
+  ],
+  services: [
+    { id: "s1", name: "Saç Kesimi", duration: 30, price: 250 },
+    { id: "s2", name: "Sakal Tıraşı", duration: 20, price: 150 },
+    { id: "s3", name: "Saç + Sakal", duration: 45, price: 350 },
+    { id: "s4", name: "Cilt Bakımı", duration: 30, price: 300 },
+  ],
+};
 
-      <label>Tarih</label>
-      <input type="date" name="tarih" required />
+const WEEKDAYS = [
+  { id: 1, short: "Pzt" }, { id: 2, short: "Sal" }, { id: 3, short: "Çar" },
+  { id: 4, short: "Per" }, { id: 5, short: "Cum" }, { id: 6, short: "Cmt" }, { id: 0, short: "Paz" },
+];
 
-      <label>Saat</label>
-      <select name="saat" required>
-        <option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option>
-        <option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option>
-        <option>17:00</option><option>18:00</option><option>19:00</option><option>20:00</option>
-      </select>
+const OPEN_MIN = 9 * 60;
+const CLOSE_MIN = 19 * 60;
 
-      <label>Hizmet</label>
-      <select name="hizmet" required>
-        <option>Saç Kesimi</option>
-        <option>Sakal Kesimi</option>
-        <option>Saç + Sakal Kesimi</option>
-        <option>Çocuk Saç Kesimi</option>
-      </select>
+function toLabel(mins) {
+  const h = Math.floor(mins / 60).toString().padStart(2, "0");
+  const m = (mins % 60).toString().padStart(2, "0");
+  return `${h}:${m}`;
+}
+function timeStrToMinutes(str) {
+  if (!str) return null;
+  const [h, m] = str.split(":").map(Number);
+  return h * 60 + m;
+}
+function todayISO() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+function dateLabel(iso) {
+  if (!iso) return "";
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+function isValidPhone(raw) {
+  const digits = (raw || "").replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("05")) return true;
+  if (digits.length === 10 && digits.startsWith("5")) return true;
+  return false;
+}
 
-      <button type="submit">RANDEVU AL</button>
-    </form>
-    <footer>© 2025 Ahmet Tekeli | Randevu Sistemi</footer>
-  </div>
+function ArcText({ text, radius, arc, flip, style }) {
+  const chars = text.split("");
+  const n = chars.length;
+  const step = n > 1 ? arc / (n - 1) : 0;
+  return (
+    <div style={{ position: "relative", width: 0, height: 0 }}>
+      {chars.map((ch, i) => {
+        const raw = -arc / 2 + step * i;
+        const angle = flip ? -raw : raw;
+        const ty = flip ? radius : -radius;
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              transform: `rotate(${angle}deg) translate(0px, ${ty}px)`,
+            }}
+          >
+            <span
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                transform: `translate(-50%, -50%) rotate(${flip ? 180 : 0}deg)`,
+                display: "inline-block",
+                whiteSpace: "pre",
+                lineHeight: 1,
+                ...style,
+              }}
+            >
+              {ch}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
-  <script>
-    document.getElementById("randevuForm").addEventListener("submit", function(e) {
-      e.preventDefault();
+async function storageGet(key, shared) {
+  try {
+    const res = await window.storage.get(key, shared);
+    return res ? JSON.parse(res.value) : null;
+  } catch (e) {
+    return null;
+  }
+}
+async function storageSet(key, value, shared) {
+  try {
+    await window.storage.set(key, JSON.stringify(value), shared);
+  } catch (e) {
+    console.error("storage set failed", e);
+  }
+}
 
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
+export default function BerberRandevuSistemi() {
+  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState(DEFAULT_CONFIG);
+  const [appointments, setAppointments] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [view, setView] = useState("login"); // login | booking | adminLogin | admin
+  const [currentCustomer, setCurrentCustomer] = useState(null);
+  const [toast, setToast] = useState(null);
 
-      fetch("https://script.google.com/macros/s/AKfycbwQHA0a7_0ij2KDyHyGPmnDweBX3DAXYaxoFgeU8Ss2UmJTDTzqwNQH3GCzwkXod0tM/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json"
-        }
+  // login form
+  const [loginName, setLoginName] = useState("");
+  const [loginPhone, setLoginPhone] = useState("");
+
+  // booking form
+  const [barberId, setBarberId] = useState("");
+  const [serviceIds, setServiceIds] = useState([]);
+  const [serviceMenuOpen, setServiceMenuOpen] = useState(false);
+  const [date, setDate] = useState(todayISO());
+  const [time, setTime] = useState(null);
+  const [customerTab, setCustomerTab] = useState("book"); // book | mine
+  const [bookName, setBookName] = useState("");
+  const [bookPhone, setBookPhone] = useState("");
+
+  // admin
+  const [adminPass, setAdminPass] = useState("");
+  const [adminPassVisible, setAdminPassVisible] = useState(false);
+  const [adminError, setAdminError] = useState("");
+  const [adminTab, setAdminTab] = useState("appointments"); // appointments | barbers | services | settings | dashboard
+  const [newBarberName, setNewBarberName] = useState("");
+  const [breakDrafts, setBreakDrafts] = useState({}); // { [barberId]: { start, end } }
+  const [newService, setNewService] = useState({ name: "", duration: 30, price: "" });
+  const [apptFilterDate, setApptFilterDate] = useState("");
+  const [apptFilterBarber, setApptFilterBarber] = useState("");
+  const [settingsDraft, setSettingsDraft] = useState(null);
+  const [newAdminPass, setNewAdminPass] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const [c, a, cu] = await Promise.all([
+        storageGet("shop-config", true),
+        storageGet("appointments", true),
+        storageGet("customers", true),
+      ]);
+      if (c) setConfig(c); else await storageSet("shop-config", DEFAULT_CONFIG, true);
+      if (a) setAppointments(a);
+      if (cu) setCustomers(cu);
+      setLoading(false);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (view === "admin" && !settingsDraft) {
+      setSettingsDraft({
+        name: config.business.name,
+        subtitle: config.business.subtitle,
+        rating: config.business.rating,
+        reviewCount: config.business.reviewCount,
       });
+    }
+  }, [view]); // eslint-disable-line
 
-      alert("Randevunuz gönderildi. WhatsApp bildirimi size ulaşacak.");
-      e.target.reset();
-    });
-  </script>
-</body>
-</html>
+  function showToast(type, text) {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 3500);
+  }
+
+  async function persistConfig(next) {
+    setConfig(next);
+    await storageSet("shop-config", next, true);
+  }
+  async function persistAppointments(next) {
+    setAppointments(next);
+    await storageSet("appointments", next, true);
+  }
+  async function persistCustomers(next) {
+    setCustomers(next);
+    await storageSet("customers", next, true);
+  }
+
+  function normalizePhone(p) {
+    return (p || "").replace(/\D/g, "");
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const phone = normalizePhone(loginPhone);
+    if (!loginName.trim() || !isValidPhone(loginPhone)) {
+      showToast("error", "Lütfen adınızı ve geçerli bir telefon numarası girin (05xxxxxxxxx).");
+      return;
+    }
+    let existing = customers.find((c) => c.phone === phone);
+    if (!existing) {
+      existing = { id: uid(), name: loginName.trim(), phone };
+      await persistCustomers([...customers, existing]);
+    } else {
+      existing = { ...existing, name: loginName.trim() };
+      await persistCustomers(customers.map((c) => (c.id === existing.id ? existing : c)));
+    }
+    setCurrentCustomer(existing);
+    setBookName(existing.name);
+    setBookPhone(existing.phone);
+    setView("booking");
+    setCustomerTab("book");
+  }
+
+  function handleLogout() {
+    setCurrentCustomer(null);
+    setBarberId(""); setServiceIds([]); setDate(todayISO()); setTime(null);
+    setLoginName(""); setLoginPhone("");
+    setView("login");
+  }
+
+  const selectedServices = useMemo(
+    () => config.services.filter((s) => serviceIds.includes(s.id)),
+    [config.services, serviceIds]
+  );
+  const totalDuration = useMemo(
+    () => selectedServices.reduce((sum, s) => sum + s.duration, 0) || 30,
+    [selectedServices]
+  );
+  const totalPrice = useMemo(
+    () => selectedServices.reduce((sum, s) => sum + s.price, 0),
+    [selectedServices]
+  );
+
+  const slotInfo = useMemo(() => {
+    if (!barberId || !date) return { slots: [], closedDay: false };
+    const barber = config.barbers.find((b) => b.id === barberId);
+    if (!barber) return { slots: [], closedDay: false };
+    const weekday = new Date(date + "T00:00:00").getDay();
+    const workDays = barber.workDays ?? [1, 2, 3, 4, 5, 6];
+    if (!workDays.includes(weekday)) return { slots: [], closedDay: true };
+    const workStart = barber.workStart ?? OPEN_MIN;
+    const workEnd = barber.workEnd ?? CLOSE_MIN;
+    const breaks = barber.breaks || [];
+    const dayAppts = appointments.filter(
+      (a) => a.barberId === barberId && a.date === date && a.status !== "cancelled"
+    );
+    const now = new Date();
+    const isToday = date === todayISO();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const slots = [];
+    for (let start = workStart; start + totalDuration <= workEnd; start += 30) {
+      if (isToday && start <= nowMinutes) continue;
+      const end = start + totalDuration;
+      const conflictAppt = dayAppts.some(
+        (a) => start < a.startMinutes + a.durationMinutes && a.startMinutes < end
+      );
+      const conflictBreak = breaks.some((br) => start < br.end && br.start < end);
+      if (!conflictAppt && !conflictBreak) slots.push(start);
+    }
+    return { slots, closedDay: false };
+  }, [barberId, date, totalDuration, appointments, config.barbers]);
+  const availableSlots = slotInfo.slots;
+
+  useEffect(() => {
+    if (time !== null && !availableSlots.includes(time)) setTime(null);
+  }, [availableSlots]); // eslint-disable-line
+
+  function toggleService(id) {
+    setServiceIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
+
+  async function handleBook(e) {
+    e.preventDefault();
+    if (!currentCustomer) return;
+    if (!bookName.trim() || !isValidPhone(bookPhone)) {
+      showToast("error", "Lütfen geçerli bir ad soyad ve telefon numarası girin.");
+      return;
+    }
+    if (!barberId || serviceIds.length === 0 || !date || time === null) {
+      showToast("error", "Lütfen berber, işlem, tarih ve saat seçin.");
+      return;
+    }
+    // Re-check against the latest data right before saving to avoid double-booking
+    // if someone else grabbed the same slot in the meantime.
+    const fresh = (await storageGet("appointments", true)) ?? appointments;
+    const start = time;
+    const end = time + totalDuration;
+    const stillConflicts = fresh.some(
+      (a) => a.barberId === barberId && a.date === date && a.status !== "cancelled" &&
+        start < a.startMinutes + a.durationMinutes && a.startMinutes < end
+    );
+    if (stillConflicts) {
+      setAppointments(fresh);
+      setTime(null);
+      showToast("error", "Bu saat az önce doldu. Lütfen başka bir saat seçin.");
+      return;
+    }
+    const appt = {
+      id: uid(),
+      customerId: currentCustomer.id,
+      customerName: bookName.trim(),
+      phone: normalizePhone(bookPhone),
+      barberId,
+      serviceIds: [...serviceIds],
+      date,
+      startMinutes: time,
+      durationMinutes: totalDuration,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+    };
+    await persistAppointments([...fresh, appt]);
+    showToast("success", "Randevunuz alındı! Onay için bekleyin.");
+    setBarberId(""); setServiceIds([]); setTime(null); setDate(todayISO());
+    setCustomerTab("mine");
+  }
+
+  async function cancelOwnAppointment(id) {
+    const next = appointments.map((a) => (a.id === id ? { ...a, status: "cancelled" } : a));
+    await persistAppointments(next);
+    showToast("success", "Randevu iptal edildi.");
+  }
+
+  function handleAdminLogin(e) {
+    e.preventDefault();
+    if (adminPass === (config.business.adminPassword || "berber1881")) {
+      setAdminError("");
+      setAdminPass("");
+      setView("admin");
+      setAdminTab("appointments");
+    } else {
+      setAdminError("Şifre hatalı.");
+    }
+  }
+
+  async function setApptStatus(id, status) {
+    await persistAppointments(appointments.map((a) => (a.id === id ? { ...a, status } : a)));
+  }
+  async function deleteAppt(id) {
+    await persistAppointments(appointments.filter((a) => a.id !== id));
+  }
+  async function addBarber() {
+    if (!newBarberName.trim()) return;
+    const next = {
+      ...config,
+      barbers: [...config.barbers, { id: uid(), name: newBarberName.trim(), workStart: OPEN_MIN, workEnd: CLOSE_MIN, breaks: [], workDays: [1, 2, 3, 4, 5, 6] }],
+    };
+    await persistConfig(next);
+    setNewBarberName("");
+  }
+  async function removeBarber(id) {
+    await persistConfig({ ...config, barbers: config.barbers.filter((b) => b.id !== id) });
+  }
+  async function updateBarberHours(id, field, timeStr) {
+    const mins = timeStrToMinutes(timeStr);
+    if (mins === null) return;
+    const next = {
+      ...config,
+      barbers: config.barbers.map((b) => (b.id === id ? { ...b, [field]: mins } : b)),
+    };
+    await persistConfig(next);
+  }
+  async function toggleBarberWorkDay(id, dayId) {
+    const next = {
+      ...config,
+      barbers: config.barbers.map((b) => {
+        if (b.id !== id) return b;
+        const days = b.workDays ?? [1, 2, 3, 4, 5, 6];
+        const already = days.includes(dayId);
+        return { ...b, workDays: already ? days.filter((d) => d !== dayId) : [...days, dayId].sort() };
+      }),
+    };
+    await persistConfig(next);
+  }
+  async function addBarberBreak(id) {
+    const draft = breakDrafts[id];
+    if (!draft || !draft.start || !draft.end) return;
+    const barber = config.barbers.find((b) => b.id === id);
+    const start = timeStrToMinutes(draft.start);
+    const end = timeStrToMinutes(draft.end);
+    if (start === null || end === null || end <= start) {
+      showToast("error", "Mola bitiş saati başlangıçtan sonra olmalı.");
+      return;
+    }
+    const workStart = barber?.workStart ?? OPEN_MIN;
+    const workEnd = barber?.workEnd ?? CLOSE_MIN;
+    if (start < workStart || end > workEnd) {
+      showToast("error", "Mola, çalışma saatleri içinde olmalı.");
+      return;
+    }
+    const next = {
+      ...config,
+      barbers: config.barbers.map((b) =>
+        b.id === id ? { ...b, breaks: [...(b.breaks || []), { start, end }] } : b
+      ),
+    };
+    await persistConfig(next);
+    setBreakDrafts({ ...breakDrafts, [id]: { start: "", end: "" } });
+  }
+  async function removeBarberBreak(id, index) {
+    const next = {
+      ...config,
+      barbers: config.barbers.map((b) =>
+        b.id === id ? { ...b, breaks: (b.breaks || []).filter((_, i) => i !== index) } : b
+      ),
+    };
+    await persistConfig(next);
+  }
+  async function addService() {
+    if (!newService.name.trim() || !newService.price) return;
+    const next = {
+      ...config,
+      services: [...config.services, {
+        id: uid(), name: newService.name.trim(),
+        duration: Number(newService.duration) || 30,
+        price: Number(newService.price) || 0,
+      }],
+    };
+    await persistConfig(next);
+    setNewService({ name: "", duration: 30, price: "" });
+  }
+  async function removeService(id) {
+    await persistConfig({ ...config, services: config.services.filter((s) => s.id !== id) });
+  }
+  async function saveSettings() {
+    if (!settingsDraft) return;
+    const updated = {
+      ...config,
+      business: {
+        ...config.business,
+        name: settingsDraft.name.trim() || config.business.name,
+        subtitle: settingsDraft.subtitle.trim() || config.business.subtitle,
+        rating: Number(settingsDraft.rating) || config.business.rating,
+        reviewCount: Number(settingsDraft.reviewCount) || config.business.reviewCount,
+        adminPassword: newAdminPass.trim() ? newAdminPass.trim() : config.business.adminPassword,
+      },
+    };
+    await persistConfig(updated);
+    setNewAdminPass("");
+    showToast("success", "Ayarlar kaydedildi.");
+  }
+
+  function barberName(id) { return config.barbers.find((b) => b.id === id)?.name || "—"; }
+  function serviceNames(ids) {
+    return ids.map((id) => config.services.find((s) => s.id === id)?.name).filter(Boolean).join(", ");
+  }
+
+  const myAppointments = useMemo(
+    () => appointments
+      .filter((a) => currentCustomer && a.customerId === currentCustomer.id)
+      .sort((a, b) => (a.date + toLabel(a.startMinutes)).localeCompare(b.date + toLabel(b.startMinutes))),
+    [appointments, currentCustomer]
+  );
+
+  const sortedAdminAppts = useMemo(() => {
+    let list = [...appointments];
+    if (apptFilterDate) list = list.filter((a) => a.date === apptFilterDate);
+    if (apptFilterBarber) list = list.filter((a) => a.barberId === apptFilterBarber);
+    return list.sort((a, b) => (b.date + toLabel(b.startMinutes)).localeCompare(a.date + toLabel(a.startMinutes)));
+  }, [appointments, apptFilterDate, apptFilterBarber]);
+
+  const statusStyles = {
+    pending: "bg-amber-100 text-amber-800 border-amber-300",
+    confirmed: "bg-emerald-100 text-emerald-800 border-emerald-300",
+    cancelled: "bg-rose-100 text-rose-700 border-rose-300",
+  };
+  const statusLabels = { pending: "Bekliyor", confirmed: "Onaylandı", cancelled: "İptal Edildi" };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-stone-800">
+        <Loader2 className="animate-spin text-amber-500" size={40} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen relative overflow-x-hidden" style={{ background: "linear-gradient(180deg,#8a8a86 0%,#5b5a56 35%,#2c2b29 75%,#1a1918 100%)" }}>
+      {/* ambient blur shapes mimicking an out-of-focus barbershop photo */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-50">
+        <div className="absolute -top-24 -left-16 w-96 h-96 bg-stone-400 rounded-full blur-3xl" />
+        <div className="absolute top-32 right-0 w-80 h-80 bg-stone-600 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-black rounded-full blur-3xl" />
+      </div>
+
+      {/* top bar */}
+      <div className="relative z-10 flex justify-between items-center px-6 pt-6 max-w-md mx-auto">
+        <div>
+          {view === "booking" && (
+            <button onClick={handleLogout} className="flex items-center gap-1 text-sm font-semibold text-stone-200 bg-white/10 rounded-full px-4 py-2">
+              <LogOut size={15} /> Çıkış
+            </button>
+          )}
+          {view === "admin" && (
+            <button onClick={() => setView("login")} className="flex items-center gap-1 text-sm font-semibold text-stone-200 bg-white/10 rounded-full px-4 py-2">
+              <ArrowLeft size={15} /> Ana Sayfa
+            </button>
+          )}
+        </div>
+        {(view === "login" || view === "booking") && (
+          <button
+            onClick={() => setView("adminLogin")}
+            className="bg-white text-stone-900 font-bold rounded-2xl px-5 py-2.5 shadow-lg text-sm"
+          >
+            Admin Girişi
+          </button>
+        )}
+        {view === "admin" && (
+          <button onClick={() => { setView("login"); }} className="flex items-center gap-1 text-sm font-semibold text-white bg-stone-900/60 rounded-full px-4 py-2">
+            <LogOut size={15} /> Çıkış Yap
+          </button>
+        )}
+      </div>
+
+      {/* Logo badge */}
+      {view !== "admin" && view !== "adminLogin" && (
+        <div className="relative z-10 flex justify-center mt-2">
+          <div className="relative w-36 h-36 rounded-full flex items-center justify-center border-4 border-amber-500 bg-stone-900 shadow-2xl">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <ArcText
+                text={config.business.name}
+                radius={58}
+                arc={160}
+                flip={false}
+                style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "1px", color: "#fbbf24" }}
+              />
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <ArcText
+                text={config.business.subtitle}
+                radius={58}
+                arc={140}
+                flip={true}
+                style={{ fontSize: "7px", fontWeight: 600, letterSpacing: "1px", color: "#d6d3d1" }}
+              />
+            </div>
+            <div className="w-16 h-16 rounded-full border border-amber-500/60 flex items-center justify-center bg-stone-900">
+              <Scissors className="text-amber-400" size={22} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="relative z-10 max-w-md mx-auto px-5 pb-16">
+        {view !== "admin" && view !== "adminLogin" && (
+          <div className="text-center mt-4 mb-6">
+            <h1 className="text-4xl font-extrabold text-white tracking-tight uppercase">{config.business.name}</h1>
+            <p className="text-stone-300 tracking-widest text-sm mt-1 uppercase">{config.business.subtitle}</p>
+            <div className="flex items-center justify-center gap-1.5 mt-3">
+              <Star className="text-amber-400 fill-amber-400" size={18} />
+              <span className="text-amber-300 font-semibold">{config.business.rating} ({config.business.reviewCount})</span>
+            </div>
+          </div>
+        )}
+
+        {toast && (
+          <div className={`mb-4 rounded-xl px-4 py-3 text-sm font-medium border ${toast.type === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"}`}>
+            {toast.text}
+          </div>
+        )}
+
+        {/* LOGIN VIEW */}
+        {view === "login" && (
+          <div className="bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-6">
+            <h2 className="text-stone-900 font-bold text-lg mb-1">Müşteri Girişi</h2>
+            <p className="text-stone-500 text-sm mb-5">Randevu almak için adınızı ve telefon numaranızı girin.</p>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-stone-800 font-bold mb-2 text-sm">Ad Soyad</label>
+                <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4">
+                  <User className="text-stone-400 mr-2" size={18} />
+                  <input value={loginName} onChange={(e) => setLoginName(e.target.value)}
+                    placeholder="Adınız ve Soyadınız"
+                    className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-stone-800 font-bold mb-2 text-sm">Telefon</label>
+                <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4">
+                  <Phone className="text-stone-400 mr-2" size={18} />
+                  <input value={loginPhone} onChange={(e) => setLoginPhone(e.target.value)}
+                    placeholder="05xxxxxxxxx"
+                    className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none" />
+                </div>
+              </div>
+              <button type="submit" className="w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-4 shadow-lg tracking-wide">
+                GİRİŞ YAP
+              </button>
+              <p className="text-xs text-stone-400 text-center">Kayıtlı değilseniz otomatik olarak hesabınız oluşturulur.</p>
+            </form>
+          </div>
+        )}
+
+        {/* BOOKING VIEW */}
+        {view === "booking" && currentCustomer && (
+          <div className="bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="text-stone-500 text-xs">Merhaba,</p>
+                <p className="text-stone-900 font-bold">{currentCustomer.name}</p>
+              </div>
+              <div className="flex bg-stone-100 rounded-full p-1">
+                <button onClick={() => setCustomerTab("book")}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold ${customerTab === "book" ? "bg-stone-900 text-white" : "text-stone-500"}`}>
+                  Randevu Al
+                </button>
+                <button onClick={() => setCustomerTab("mine")}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold ${customerTab === "mine" ? "bg-stone-900 text-white" : "text-stone-500"}`}>
+                  Randevularım
+                </button>
+              </div>
+            </div>
+
+            {customerTab === "book" && (
+              <form onSubmit={handleBook} className="space-y-5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-stone-800 font-bold mb-2 text-sm">Ad Soyad</label>
+                    <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-3">
+                      <User className="text-stone-400 mr-1.5" size={16} />
+                      <input value={bookName} onChange={(e) => setBookName(e.target.value)}
+                        placeholder="Adınız ve Soyadınız"
+                        className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-stone-800 font-bold mb-2 text-sm">Telefon</label>
+                    <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-3">
+                      <Phone className="text-stone-400 mr-1.5" size={16} />
+                      <input value={bookPhone} onChange={(e) => setBookPhone(e.target.value)}
+                        placeholder="05xxxxxxxxx"
+                        className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-stone-800 font-bold mb-2 text-sm">Berber Seçimi</label>
+                    <select value={barberId} onChange={(e) => { setBarberId(e.target.value); setTime(null); }}
+                      className="w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-3 text-stone-800 outline-none">
+                      <option value="">Seçiniz</option>
+                      {config.barbers.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
+                    </select>
+                  </div>
+                  <div className="relative">
+                    <label className="block text-stone-800 font-bold mb-2 text-sm">İşlem Seçimi</label>
+                    <button type="button" onClick={() => setServiceMenuOpen((v) => !v)}
+                      className="w-full flex items-center justify-between bg-white border border-stone-300 rounded-xl px-3 py-3 text-stone-800 font-medium">
+                      <span>{serviceIds.length ? `${serviceIds.length} seçildi` : "Seçiniz"}</span>
+                      <ChevronDown size={16} />
+                    </button>
+                    {serviceMenuOpen && (
+                      <div className="absolute z-20 mt-1 w-full bg-white border border-stone-200 rounded-xl shadow-xl p-2 max-h-56 overflow-y-auto">
+                        {config.services.map((s) => (
+                          <label key={s.id} className="flex items-center justify-between gap-2 px-2 py-2 rounded-lg hover:bg-stone-50 cursor-pointer">
+                            <span className="flex items-center gap-2">
+                              <input type="checkbox" checked={serviceIds.includes(s.id)} onChange={() => { toggleService(s.id); setTime(null); }} />
+                              <span className="text-sm text-stone-700">{s.name}</span>
+                            </span>
+                            <span className="text-xs text-stone-400">{s.duration}dk · {s.price}₺</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-stone-800 font-bold mb-2 text-sm">Tarih</label>
+                  <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4">
+                    <Calendar className="text-stone-400 mr-2" size={18} />
+                    <input type="date" min={todayISO()} value={date}
+                      onChange={(e) => { setDate(e.target.value); setTime(null); }}
+                      className="w-full bg-transparent py-3 text-stone-800 outline-none" />
+                  </div>
+                  <p className="text-xs text-stone-400 mt-1">{dateLabel(date)}</p>
+                </div>
+
+                <div>
+                  <label className="block text-stone-800 font-bold mb-2 text-sm">Saat Seçimi</label>
+                  {!barberId || serviceIds.length === 0 ? (
+                    <p className="text-stone-400 text-sm">Lütfen bir berber ve işlem seçin.</p>
+                  ) : slotInfo.closedDay ? (
+                    <p className="text-stone-400 text-sm">Seçilen berber bu gün çalışmıyor. Lütfen başka bir tarih seçin.</p>
+                  ) : availableSlots.length === 0 ? (
+                    <p className="text-stone-400 text-sm">Bu tarihte uygun saat bulunmuyor.</p>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-2">
+                      {availableSlots.map((m) => (
+                        <button key={m} type="button" onClick={() => setTime(m)}
+                          className={`text-sm font-semibold rounded-lg py-2 border ${time === m ? "bg-stone-900 text-white border-stone-900" : "bg-stone-50 text-stone-700 border-stone-200"}`}>
+                          {toLabel(m)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {selectedServices.length > 0 && (
+                  <div className="flex justify-between text-sm bg-stone-50 rounded-xl px-4 py-3 border border-stone-100">
+                    <span className="text-stone-500">Toplam: {totalDuration} dk</span>
+                    <span className="font-bold text-stone-800">{totalPrice}₺</span>
+                  </div>
+                )}
+
+                <button type="submit" className="w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-4 shadow-lg tracking-wide">
+                  RANDEVU AL
+                </button>
+              </form>
+            )}
+
+            {customerTab === "mine" && (
+              <div className="space-y-3">
+                {myAppointments.length === 0 && (
+                  <p className="text-stone-400 text-sm text-center py-6">Henüz randevunuz yok.</p>
+                )}
+                {myAppointments.map((a) => (
+                  <div key={a.id} className="border border-stone-200 rounded-xl p-4">
+                    <div className="flex justify-between items-start mb-1">
+                      <div>
+                        <p className="font-bold text-stone-900">{dateLabel(a.date)} · {toLabel(a.startMinutes)}</p>
+                        <p className="text-sm text-stone-500">{barberName(a.barberId)} — {serviceNames(a.serviceIds)}</p>
+                      </div>
+                      <span className={`text-xs font-semibold border rounded-full px-2 py-1 ${statusStyles[a.status]}`}>
+                        {statusLabels[a.status]}
+                      </span>
+                    </div>
+                    {a.status === "pending" && (
+                      <button onClick={() => cancelOwnAppointment(a.id)} className="text-xs font-semibold text-rose-600 mt-2">
+                        Randevuyu İptal Et
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ADMIN LOGIN */}
+        {view === "adminLogin" && (
+          <div className="bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-6 mt-24">
+            <div className="flex items-center gap-2 mb-1">
+              <Lock className="text-stone-800" size={20} />
+              <h2 className="text-stone-900 font-bold text-lg">Admin Girişi</h2>
+            </div>
+            <p className="text-stone-500 text-sm mb-5">Yönetim paneline erişmek için şifrenizi girin.</p>
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <input type="password" value={adminPass} onChange={(e) => setAdminPass(e.target.value)}
+                placeholder="Şifre"
+                className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
+              {adminError && <p className="text-rose-600 text-sm">{adminError}</p>}
+              <button type="submit" className="w-full bg-stone-900 text-white font-bold rounded-xl py-3.5">Giriş Yap</button>
+              <button type="button" onClick={() => setView("login")} className="w-full text-stone-500 text-sm py-1">Vazgeç</button>
+            </form>
+          </div>
+        )}
+
+        {/* ADMIN PANEL */}
+        {view === "admin" && (
+          <div className="mt-6">
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+              {[
+                { id: "dashboard", label: "Panel", icon: LayoutDashboard },
+                { id: "appointments", label: "Randevular", icon: CalendarDays },
+                { id: "barbers", label: "Berberler", icon: Users },
+                { id: "services", label: "Hizmetler", icon: Briefcase },
+                { id: "settings", label: "Ayarlar", icon: Settings },
+              ].map((t) => (
+                <button key={t.id} onClick={() => setAdminTab(t.id)}
+                  className={`flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold ${adminTab === t.id ? "bg-amber-500 text-stone-900" : "bg-white/10 text-stone-200"}`}>
+                  <t.icon size={15} /> {t.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-5">
+              {adminTab === "dashboard" && (
+                <div className="space-y-4">
+                  <h2 className="text-stone-900 font-bold text-lg">Genel Bakış</h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-stone-50 rounded-xl p-4 border border-stone-100">
+                      <p className="text-stone-400 text-xs">Toplam Randevu</p>
+                      <p className="text-2xl font-extrabold text-stone-900">{appointments.length}</p>
+                    </div>
+                    <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                      <p className="text-amber-600 text-xs">Bekleyen</p>
+                      <p className="text-2xl font-extrabold text-amber-700">{appointments.filter((a) => a.status === "pending").length}</p>
+                    </div>
+                    <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                      <p className="text-emerald-600 text-xs">Onaylanan</p>
+                      <p className="text-2xl font-extrabold text-emerald-700">{appointments.filter((a) => a.status === "confirmed").length}</p>
+                    </div>
+                    <div className="bg-stone-50 rounded-xl p-4 border border-stone-100">
+                      <p className="text-stone-400 text-xs">Kayıtlı Müşteri</p>
+                      <p className="text-2xl font-extrabold text-stone-900">{customers.length}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {adminTab === "appointments" && (
+                <div>
+                  <h2 className="text-stone-900 font-bold text-lg mb-3">Randevular</h2>
+                  <div className="flex gap-2 mb-3">
+                    <select value={apptFilterBarber} onChange={(e) => setApptFilterBarber(e.target.value)}
+                      className="flex-1 bg-stone-100 border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700">
+                      <option value="">Tüm Berberler</option>
+                      {config.barbers.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
+                    </select>
+                    <input type="date" value={apptFilterDate} onChange={(e) => setApptFilterDate(e.target.value)}
+                      className="flex-1 bg-stone-100 border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700" />
+                  </div>
+                  {(apptFilterDate || apptFilterBarber) && (
+                    <button onClick={() => { setApptFilterDate(""); setApptFilterBarber(""); }} className="text-xs text-stone-400 mb-3 underline">Filtreleri temizle</button>
+                  )}
+                  <div className="space-y-3 max-h-[28rem] overflow-y-auto">
+                    {sortedAdminAppts.length === 0 && <p className="text-stone-400 text-sm text-center py-6">Randevu bulunmuyor.</p>}
+                    {sortedAdminAppts.map((a) => (
+                      <div key={a.id} className="border border-stone-200 rounded-xl p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-bold text-stone-900">{a.customerName} <span className="text-stone-400 font-normal">· {a.phone}</span></p>
+                            <p className="text-sm text-stone-600">{dateLabel(a.date)} · {toLabel(a.startMinutes)} ({a.durationMinutes} dk)</p>
+                            <p className="text-sm text-stone-500">{barberName(a.barberId)} — {serviceNames(a.serviceIds)}</p>
+                          </div>
+                          <span className={`text-xs font-semibold border rounded-full px-2 py-1 ${statusStyles[a.status]}`}>{statusLabels[a.status]}</span>
+                        </div>
+                        <div className="flex gap-2 mt-3">
+                          {a.status !== "confirmed" && (
+                            <button onClick={() => setApptStatus(a.id, "confirmed")} className="flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full px-3 py-1.5">
+                              <BadgeCheck size={14} /> Onayla
+                            </button>
+                          )}
+                          {a.status !== "cancelled" && (
+                            <button onClick={() => setApptStatus(a.id, "cancelled")} className="flex items-center gap-1 text-xs font-semibold text-rose-700 bg-rose-50 rounded-full px-3 py-1.5">
+                              <Ban size={14} /> İptal Et
+                            </button>
+                          )}
+                          <button onClick={() => { if (window.confirm("Bu randevuyu kalıcı olarak silmek istediğinize emin misiniz?")) deleteAppt(a.id); }} className="flex items-center gap-1 text-xs font-semibold text-stone-500 bg-stone-100 rounded-full px-3 py-1.5 ml-auto">
+                            <Trash2 size={14} /> Sil
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {adminTab === "barbers" && (
+                <div>
+                  <h2 className="text-stone-900 font-bold text-lg mb-4">Berberler</h2>
+                  <div className="space-y-4 mb-4">
+                    {config.barbers.map((b) => (
+                      <div key={b.id} className="border border-stone-200 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-stone-900 font-bold">{b.name}</span>
+                          <button onClick={() => { if (window.confirm(`${b.name} silinsin mi? Bu berbere ait randevu geçmişi kalır ancak yeni randevu alınamaz.`)) removeBarber(b.id); }} className="text-rose-500"><Trash2 size={16} /></button>
+                        </div>
+
+                        <p className="text-xs font-semibold text-stone-500 mb-1.5">Çalışma Günleri</p>
+                        <div className="flex gap-1.5 mb-3 flex-wrap">
+                          {WEEKDAYS.map((d) => {
+                            const active = (b.workDays ?? [1, 2, 3, 4, 5, 6]).includes(d.id);
+                            return (
+                              <button key={d.id} type="button" onClick={() => toggleBarberWorkDay(b.id, d.id)}
+                                className={`text-xs font-semibold rounded-lg px-2.5 py-1.5 border ${active ? "bg-stone-900 text-white border-stone-900" : "bg-stone-50 text-stone-400 border-stone-200"}`}>
+                                {d.short}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <p className="text-xs font-semibold text-stone-500 mb-1.5">Çalışma Saatleri</p>
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="flex items-center gap-1.5 bg-stone-100 rounded-lg px-3 py-2">
+                            <Clock size={14} className="text-stone-400" />
+                            <input type="time" value={toLabel(b.workStart ?? OPEN_MIN)}
+                              onChange={(e) => updateBarberHours(b.id, "workStart", e.target.value)}
+                              className="bg-transparent text-sm text-stone-800 outline-none" />
+                          </div>
+                          <span className="text-stone-400 text-sm">—</span>
+                          <div className="flex items-center gap-1.5 bg-stone-100 rounded-lg px-3 py-2">
+                            <Clock size={14} className="text-stone-400" />
+                            <input type="time" value={toLabel(b.workEnd ?? CLOSE_MIN)}
+                              onChange={(e) => updateBarberHours(b.id, "workEnd", e.target.value)}
+                              className="bg-transparent text-sm text-stone-800 outline-none" />
+                          </div>
+                        </div>
+
+                        <p className="text-xs font-semibold text-stone-500 mb-1.5">Molalar</p>
+                        <div className="space-y-1.5 mb-2">
+                          {(b.breaks || []).length === 0 && (
+                            <p className="text-xs text-stone-400">Tanımlı mola yok.</p>
+                          )}
+                          {(b.breaks || []).map((br, i) => (
+                            <div key={i} className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5">
+                              <span className="text-xs font-semibold text-amber-800">{toLabel(br.start)} – {toLabel(br.end)}</span>
+                              <button onClick={() => removeBarberBreak(b.id, i)} className="text-rose-500"><X size={14} /></button>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input type="time" value={breakDrafts[b.id]?.start || ""}
+                            onChange={(e) => setBreakDrafts({ ...breakDrafts, [b.id]: { ...breakDrafts[b.id], start: e.target.value } })}
+                            className="flex-1 bg-stone-100 border border-stone-200 rounded-lg px-2 py-2 text-xs text-stone-800 outline-none" />
+                          <span className="text-stone-400 text-xs">—</span>
+                          <input type="time" value={breakDrafts[b.id]?.end || ""}
+                            onChange={(e) => setBreakDrafts({ ...breakDrafts, [b.id]: { ...breakDrafts[b.id], end: e.target.value } })}
+                            className="flex-1 bg-stone-100 border border-stone-200 rounded-lg px-2 py-2 text-xs text-stone-800 outline-none" />
+                          <button onClick={() => addBarberBreak(b.id)} className="bg-stone-900 text-white rounded-lg px-3 py-2"><Plus size={14} /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input value={newBarberName} onChange={(e) => setNewBarberName(e.target.value)} placeholder="Yeni berber adı"
+                      className="flex-1 bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
+                    <button onClick={addBarber} className="bg-stone-900 text-white rounded-xl px-4 flex items-center"><Plus size={18} /></button>
+                  </div>
+                </div>
+              )}
+
+              {adminTab === "services" && (
+                <div>
+                  <h2 className="text-stone-900 font-bold text-lg mb-4">Hizmetler</h2>
+                  <div className="space-y-2 mb-4">
+                    {config.services.map((s) => (
+                      <div key={s.id} className="flex items-center justify-between border border-stone-200 rounded-xl px-4 py-3">
+                        <div>
+                          <p className="text-stone-800 font-medium">{s.name}</p>
+                          <p className="text-xs text-stone-400">{s.duration} dk · {s.price}₺</p>
+                        </div>
+                        <button onClick={() => { if (window.confirm(`${s.name} hizmeti silinsin mi?`)) removeService(s.id); }} className="text-rose-500"><Trash2 size={16} /></button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mb-2">
+                    <input value={newService.name} onChange={(e) => setNewService({ ...newService, name: e.target.value })} placeholder="Hizmet adı"
+                      className="col-span-3 bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5 text-stone-800 outline-none text-sm" />
+                    <input type="number" value={newService.duration} onChange={(e) => setNewService({ ...newService, duration: e.target.value })} placeholder="Dakika"
+                      className="bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5 text-stone-800 outline-none text-sm" />
+                    <input type="number" value={newService.price} onChange={(e) => setNewService({ ...newService, price: e.target.value })} placeholder="Fiyat ₺"
+                      className="bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5 text-stone-800 outline-none text-sm" />
+                    <button onClick={addService} className="bg-stone-900 text-white rounded-xl flex items-center justify-center"><Plus size={18} /></button>
+                  </div>
+                </div>
+              )}
+
+              {adminTab === "settings" && settingsDraft && (
+                <div className="space-y-5">
+                  <h2 className="text-stone-900 font-bold text-lg">İşletme Ayarları</h2>
+                  <div>
+                    <label className="block text-stone-800 font-bold mb-2 text-sm">İşletme Adı</label>
+                    <input value={settingsDraft.name} onChange={(e) => setSettingsDraft({ ...settingsDraft, name: e.target.value })}
+                      className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-stone-800 font-bold mb-2 text-sm">Alt Başlık</label>
+                    <input value={settingsDraft.subtitle} onChange={(e) => setSettingsDraft({ ...settingsDraft, subtitle: e.target.value })}
+                      className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-stone-800 font-bold mb-2 text-sm">Puan</label>
+                      <input type="number" step="0.1" min="0" max="5" value={settingsDraft.rating}
+                        onChange={(e) => setSettingsDraft({ ...settingsDraft, rating: e.target.value })}
+                        className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-stone-800 font-bold mb-2 text-sm">Değerlendirme Sayısı</label>
+                      <input type="number" min="0" value={settingsDraft.reviewCount}
+                        onChange={(e) => setSettingsDraft({ ...settingsDraft, reviewCount: e.target.value })}
+                        className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-stone-200 pt-4">
+                    <label className="block text-stone-800 font-bold mb-2 text-sm">Admin Şifresini Değiştir</label>
+                    <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4">
+                      <Lock className="text-stone-400 mr-2" size={16} />
+                      <input type={adminPassVisible ? "text" : "password"} value={newAdminPass}
+                        onChange={(e) => setNewAdminPass(e.target.value)}
+                        placeholder="Yeni şifre (boş bırakılırsa değişmez)"
+                        className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm" />
+                      <button type="button" onClick={() => setAdminPassVisible((v) => !v)} className="text-stone-400">
+                        {adminPassVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button onClick={saveSettings} className="w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-3.5 shadow-lg">
+                    Ayarları Kaydet
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
