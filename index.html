@@ -15,11 +15,24 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+  window.__showBootError = function (msg) {
+    var el = document.getElementById('boot-fallback');
+    if (el) { el.textContent = 'Hata: ' + msg; el.style.color = '#fca5a5'; }
+  };
+  window.addEventListener('error', function (e) {
+    window.__showBootError((e && e.message) ? e.message : String(e));
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e && e.reason;
+    window.__showBootError(r && r.message ? r.message : String(r));
+  });
+</script>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js" onerror="window.__showBootError('react.js CDN yuklenemedi')"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" onerror="window.__showBootError('react-dom.js CDN yuklenemedi')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" onerror="window.__showBootError('firebase-app CDN yuklenemedi')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" onerror="window.__showBootError('firebase-firestore CDN yuklenemedi')"></script>
 
 <style>
   html, body, #root { height: 100%; margin: 0; }
@@ -29,102 +42,128 @@
 </style>
 </head>
 <body>
-<div id="root"><div id="boot-fallback">Yükleniyor…</div></div>
+<div id="root"><div id="boot-fallback">Yukleniyor...</div></div>
 
-<script type="text/babel" data-presets="react">
+<script>
+var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __objRest = (source, exclude) => {
+  var target = {};
+  for (var prop in source)
+    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+      target[prop] = source[prop];
+  if (source != null && __getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(source)) {
+      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+        target[prop] = source[prop];
+    }
+  return target;
+};
 const { useState, useEffect, useMemo } = React;
-
-// === Firebase bağlantı bilgileri ===
 const firebaseConfig = {
   apiKey: "AIzaSyDlWAiOEvyP-bVPwjPBVxT6MMfRdFrG3g0",
   authDomain: "berberim2-fff64.firebaseapp.com",
   projectId: "berberim2-fff64",
   storageBucket: "berberim2-fff64.firebasestorage.app",
   messagingSenderId: "1009883427797",
-  appId: "1:1009883427797:web:8b68a4e5afb9a5738ec35c",
+  appId: "1:1009883427797:web:8b68a4e5afb9a5738ec35c"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-function Icon({ children, size = 20, className = "", ...rest }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      {...rest}
-    >
-      {children}
-    </svg>
+function Icon(_a) {
+  var _b = _a, { children, size = 20, className = "" } = _b, rest = __objRest(_b, ["children", "size", "className"]);
+  return /* @__PURE__ */ React.createElement(
+    "svg",
+    __spreadValues({
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "2",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      className
+    }, rest),
+    children
   );
 }
-const Scissors = (p) => <Icon {...p}><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.5" y2="15.5" /><line x1="14.5" y1="14.5" x2="20" y2="20" /><line x1="8.5" y1="8.5" x2="12" y2="12" /></Icon>;
-const Calendar = (p) => <Icon {...p}><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></Icon>;
-const CalendarDays = (p) => <Icon {...p}><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /><circle cx="8" cy="15" r="1" /><circle cx="12" cy="15" r="1" /><circle cx="16" cy="15" r="1" /></Icon>;
-const Clock = (p) => <Icon {...p}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></Icon>;
-const Phone = (p) => <Icon {...p}><rect x="7" y="2" width="10" height="20" rx="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></Icon>;
-const User = (p) => <Icon {...p}><circle cx="12" cy="8" r="4" /><rect x="5" y="15" width="14" height="7" rx="3.5" /></Icon>;
-const Users = (p) => <Icon {...p}><circle cx="9" cy="8" r="3" /><rect x="3" y="14" width="12" height="6" rx="3" /><circle cx="17" cy="8" r="2.5" /><rect x="14" y="14" width="8" height="5" rx="2.5" /></Icon>;
-const ChevronDown = (p) => <Icon {...p}><polyline points="6 9 12 15 18 9" /></Icon>;
-const Check = (p) => <Icon {...p}><polyline points="20 6 9 17 4 12" /></Icon>;
-const X = (p) => <Icon {...p}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></Icon>;
-const Trash2 = (p) => <Icon {...p}><polyline points="3 6 5 6 21 6" /><rect x="6" y="6" width="12" height="14" rx="1" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><rect x="9" y="2" width="6" height="4" rx="1" /></Icon>;
-const Plus = (p) => <Icon {...p}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></Icon>;
-const LogOut = (p) => <Icon {...p}><rect x="3" y="4" width="9" height="16" rx="1" /><polyline points="16 7 21 12 16 17" /><line x1="21" y1="12" x2="9" y2="12" /></Icon>;
-const Lock = (p) => <Icon {...p}><rect x="3" y="11" width="18" height="11" rx="2" /><circle cx="12" cy="16" r="1.5" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></Icon>;
-const Star = (p) => <Icon {...p}><polygon points="12 2 15 9 22 9.5 16.5 14 18 21.5 12 17.5 6 21.5 7.5 14 2 9.5 9 9" /></Icon>;
-const Briefcase = (p) => <Icon {...p}><rect x="2" y="7" width="20" height="14" rx="2" /><rect x="8" y="3" width="8" height="4" rx="1" /><line x1="2" y1="13" x2="22" y2="13" /></Icon>;
-const LayoutDashboard = (p) => <Icon {...p}><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></Icon>;
-const ArrowLeft = (p) => <Icon {...p}><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></Icon>;
-const BadgeCheck = (p) => <Icon {...p}><circle cx="12" cy="12" r="9" /><polyline points="8 12 11 15 16 9" /></Icon>;
-const Ban = (p) => <Icon {...p}><circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" /></Icon>;
-const Loader2 = (p) => <Icon {...p}><circle cx="12" cy="12" r="9" opacity="0.25" /><path d="M21 12a9 9 0 0 0-9-9" /></Icon>;
-const Eye = (p) => <Icon {...p}><ellipse cx="12" cy="12" rx="10" ry="6" /><circle cx="12" cy="12" r="3" /></Icon>;
-const EyeOff = (p) => <Icon {...p}><ellipse cx="12" cy="12" rx="10" ry="6" /><circle cx="12" cy="12" r="3" /><line x1="2" y1="2" x2="22" y2="22" /></Icon>;
-const Settings = (p) => <Icon {...p}><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="8" /><line x1="12" y1="1" x2="12" y2="4" /><line x1="12" y1="20" x2="12" y2="23" /><line x1="1" y1="12" x2="4" y2="12" /><line x1="20" y1="12" x2="23" y2="12" /><line x1="4.2" y1="4.2" x2="6.3" y2="6.3" /><line x1="17.7" y1="17.7" x2="19.8" y2="19.8" /><line x1="4.2" y1="19.8" x2="6.3" y2="17.7" /><line x1="17.7" y1="6.3" x2="19.8" y2="4.2" /></Icon>;
-const Search = (p) => <Icon {...p}><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16" y2="16" /></Icon>;
-
-
+const Scissors = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("circle", { cx: "6", cy: "6", r: "3" }), /* @__PURE__ */ React.createElement("circle", { cx: "6", cy: "18", r: "3" }), /* @__PURE__ */ React.createElement("line", { x1: "20", y1: "4", x2: "8.5", y2: "15.5" }), /* @__PURE__ */ React.createElement("line", { x1: "14.5", y1: "14.5", x2: "20", y2: "20" }), /* @__PURE__ */ React.createElement("line", { x1: "8.5", y1: "8.5", x2: "12", y2: "12" }));
+const Calendar = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("rect", { x: "3", y: "4", width: "18", height: "18", rx: "2" }), /* @__PURE__ */ React.createElement("line", { x1: "16", y1: "2", x2: "16", y2: "6" }), /* @__PURE__ */ React.createElement("line", { x1: "8", y1: "2", x2: "8", y2: "6" }), /* @__PURE__ */ React.createElement("line", { x1: "3", y1: "10", x2: "21", y2: "10" }));
+const CalendarDays = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("rect", { x: "3", y: "4", width: "18", height: "18", rx: "2" }), /* @__PURE__ */ React.createElement("line", { x1: "16", y1: "2", x2: "16", y2: "6" }), /* @__PURE__ */ React.createElement("line", { x1: "8", y1: "2", x2: "8", y2: "6" }), /* @__PURE__ */ React.createElement("line", { x1: "3", y1: "10", x2: "21", y2: "10" }), /* @__PURE__ */ React.createElement("circle", { cx: "8", cy: "15", r: "1" }), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "15", r: "1" }), /* @__PURE__ */ React.createElement("circle", { cx: "16", cy: "15", r: "1" }));
+const Clock = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "10" }), /* @__PURE__ */ React.createElement("polyline", { points: "12 6 12 12 16 14" }));
+const Phone = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("rect", { x: "7", y: "2", width: "10", height: "20", rx: "2" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "18", x2: "12.01", y2: "18" }));
+const User = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "8", r: "4" }), /* @__PURE__ */ React.createElement("rect", { x: "5", y: "15", width: "14", height: "7", rx: "3.5" }));
+const Users = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("circle", { cx: "9", cy: "8", r: "3" }), /* @__PURE__ */ React.createElement("rect", { x: "3", y: "14", width: "12", height: "6", rx: "3" }), /* @__PURE__ */ React.createElement("circle", { cx: "17", cy: "8", r: "2.5" }), /* @__PURE__ */ React.createElement("rect", { x: "14", y: "14", width: "8", height: "5", rx: "2.5" }));
+const ChevronDown = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("polyline", { points: "6 9 12 15 18 9" }));
+const Check = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("polyline", { points: "20 6 9 17 4 12" }));
+const X = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("line", { x1: "18", y1: "6", x2: "6", y2: "18" }), /* @__PURE__ */ React.createElement("line", { x1: "6", y1: "6", x2: "18", y2: "18" }));
+const Trash2 = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("polyline", { points: "3 6 5 6 21 6" }), /* @__PURE__ */ React.createElement("rect", { x: "6", y: "6", width: "12", height: "14", rx: "1" }), /* @__PURE__ */ React.createElement("line", { x1: "10", y1: "11", x2: "10", y2: "17" }), /* @__PURE__ */ React.createElement("line", { x1: "14", y1: "11", x2: "14", y2: "17" }), /* @__PURE__ */ React.createElement("rect", { x: "9", y: "2", width: "6", height: "4", rx: "1" }));
+const Plus = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "5", x2: "12", y2: "19" }), /* @__PURE__ */ React.createElement("line", { x1: "5", y1: "12", x2: "19", y2: "12" }));
+const LogOut = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("rect", { x: "3", y: "4", width: "9", height: "16", rx: "1" }), /* @__PURE__ */ React.createElement("polyline", { points: "16 7 21 12 16 17" }), /* @__PURE__ */ React.createElement("line", { x1: "21", y1: "12", x2: "9", y2: "12" }));
+const Lock = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("rect", { x: "3", y: "11", width: "18", height: "11", rx: "2" }), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "16", r: "1.5" }), /* @__PURE__ */ React.createElement("path", { d: "M7 11V7a5 5 0 0 1 10 0v4" }));
+const Star = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("polygon", { points: "12 2 15 9 22 9.5 16.5 14 18 21.5 12 17.5 6 21.5 7.5 14 2 9.5 9 9" }));
+const Briefcase = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("rect", { x: "2", y: "7", width: "20", height: "14", rx: "2" }), /* @__PURE__ */ React.createElement("rect", { x: "8", y: "3", width: "8", height: "4", rx: "1" }), /* @__PURE__ */ React.createElement("line", { x1: "2", y1: "13", x2: "22", y2: "13" }));
+const LayoutDashboard = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("rect", { x: "3", y: "3", width: "7", height: "9" }), /* @__PURE__ */ React.createElement("rect", { x: "14", y: "3", width: "7", height: "5" }), /* @__PURE__ */ React.createElement("rect", { x: "14", y: "12", width: "7", height: "9" }), /* @__PURE__ */ React.createElement("rect", { x: "3", y: "16", width: "7", height: "5" }));
+const ArrowLeft = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("line", { x1: "19", y1: "12", x2: "5", y2: "12" }), /* @__PURE__ */ React.createElement("polyline", { points: "12 19 5 12 12 5" }));
+const BadgeCheck = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "9" }), /* @__PURE__ */ React.createElement("polyline", { points: "8 12 11 15 16 9" }));
+const Ban = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "10" }), /* @__PURE__ */ React.createElement("line", { x1: "4.93", y1: "4.93", x2: "19.07", y2: "19.07" }));
+const Loader2 = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "9", opacity: "0.25" }), /* @__PURE__ */ React.createElement("path", { d: "M21 12a9 9 0 0 0-9-9" }));
+const Eye = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("ellipse", { cx: "12", cy: "12", rx: "10", ry: "6" }), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "3" }));
+const EyeOff = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("ellipse", { cx: "12", cy: "12", rx: "10", ry: "6" }), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "3" }), /* @__PURE__ */ React.createElement("line", { x1: "2", y1: "2", x2: "22", y2: "22" }));
+const Settings = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "3" }), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "8" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "1", x2: "12", y2: "4" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "20", x2: "12", y2: "23" }), /* @__PURE__ */ React.createElement("line", { x1: "1", y1: "12", x2: "4", y2: "12" }), /* @__PURE__ */ React.createElement("line", { x1: "20", y1: "12", x2: "23", y2: "12" }), /* @__PURE__ */ React.createElement("line", { x1: "4.2", y1: "4.2", x2: "6.3", y2: "6.3" }), /* @__PURE__ */ React.createElement("line", { x1: "17.7", y1: "17.7", x2: "19.8", y2: "19.8" }), /* @__PURE__ */ React.createElement("line", { x1: "4.2", y1: "19.8", x2: "6.3", y2: "17.7" }), /* @__PURE__ */ React.createElement("line", { x1: "17.7", y1: "6.3", x2: "19.8", y2: "4.2" }));
+const Search = (p) => /* @__PURE__ */ React.createElement(Icon, __spreadValues({}, p), /* @__PURE__ */ React.createElement("circle", { cx: "11", cy: "11", r: "7" }), /* @__PURE__ */ React.createElement("line", { x1: "21", y1: "21", x2: "16", y2: "16" }));
 const LOGO_DATA_URI = "data:image/webp;base64,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";
-
 const DEFAULT_CONFIG = {
-  business: { name: "AHMET TEKELİ", subtitle: "ERKEK KUAFÖRÜ", rating: 4.5, reviewCount: 172, adminPassword: "berber1881" },
+  business: { name: "AHMET TEKEL\u0130", subtitle: "ERKEK KUAF\xD6R\xDC", rating: 4.5, reviewCount: 172, adminPassword: "berber1881" },
   barbers: [
     { id: "b1", name: "Efe KARA", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] },
-    { id: "b2", name: "Ahmet TEKELİ", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] },
-    { id: "b3", name: "Mert YILMAZ", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] },
+    { id: "b2", name: "Ahmet TEKEL\u0130", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] },
+    { id: "b3", name: "Mert YILMAZ", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] }
   ],
   services: [
-    { id: "s1", name: "Saç Kesimi", duration: 30, price: 250 },
-    { id: "s2", name: "Sakal Tıraşı", duration: 20, price: 150 },
-    { id: "s3", name: "Saç + Sakal", duration: 45, price: 350 },
-    { id: "s4", name: "Cilt Bakımı", duration: 30, price: 300 },
-  ],
+    { id: "s1", name: "Sa\xE7 Kesimi", duration: 30, price: 250 },
+    { id: "s2", name: "Sakal T\u0131ra\u015F\u0131", duration: 20, price: 150 },
+    { id: "s3", name: "Sa\xE7 + Sakal", duration: 45, price: 350 },
+    { id: "s4", name: "Cilt Bak\u0131m\u0131", duration: 30, price: 300 }
+  ]
 };
-
 const WEEKDAYS = [
-  { id: 1, short: "Pzt" }, { id: 2, short: "Sal" }, { id: 3, short: "Çar" },
-  { id: 4, short: "Per" }, { id: 5, short: "Cum" }, { id: 6, short: "Cmt" }, { id: 0, short: "Paz" },
+  { id: 1, short: "Pzt" },
+  { id: 2, short: "Sal" },
+  { id: 3, short: "\xC7ar" },
+  { id: 4, short: "Per" },
+  { id: 5, short: "Cum" },
+  { id: 6, short: "Cmt" },
+  { id: 0, short: "Paz" }
 ];
-
 const ADMIN_TABS = [
   { id: "dashboard", label: "Panel", icon: LayoutDashboard },
   { id: "appointments", label: "Randevular", icon: CalendarDays },
-  { id: "customers", label: "Müşteriler", icon: Users },
+  { id: "customers", label: "M\xFC\u015Fteriler", icon: Users },
   { id: "barbers", label: "Berberler", icon: Scissors },
   { id: "services", label: "Hizmetler", icon: Briefcase },
-  { id: "settings", label: "Ayarlar", icon: Settings },
+  { id: "settings", label: "Ayarlar", icon: Settings }
 ];
-
 const OPEN_MIN = 9 * 60;
 const CLOSE_MIN = 19 * 60;
-
 function toLabel(mins) {
   const h = Math.floor(mins / 60).toString().padStart(2, "0");
   const m = (mins % 60).toString().padStart(2, "0");
@@ -136,12 +175,12 @@ function timeStrToMinutes(str) {
   return h * 60 + m;
 }
 function todayISO() {
-  const d = new Date();
+  const d = /* @__PURE__ */ new Date();
   return d.toISOString().slice(0, 10);
 }
 function dateLabel(iso) {
   if (!iso) return "";
-  const d = new Date(iso + "T00:00:00");
+  const d = /* @__PURE__ */ new Date(iso + "T00:00:00");
   return d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
 }
 function uid() {
@@ -153,7 +192,6 @@ function isValidPhone(raw) {
   if (digits.length === 10 && digits.startsWith("5")) return true;
   return false;
 }
-
 async function storageGet(key) {
   try {
     const snap = await db.collection("berberRandevu").doc(key).get();
@@ -170,66 +208,58 @@ async function storageSet(key, value) {
     console.error("storage set failed", e);
   }
 }
-
 function BerberRandevuSistemi() {
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [appointments, setAppointments] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [view, setView] = useState("login"); // login | booking | adminLogin | admin
+  const [view, setView] = useState("login");
   const [currentCustomer, setCurrentCustomer] = useState(null);
   const [toast, setToast] = useState(null);
-
-  // login form
   const [loginName, setLoginName] = useState("");
   const [loginPhone, setLoginPhone] = useState("");
-
-  // booking form
   const [barberId, setBarberId] = useState("");
   const [serviceIds, setServiceIds] = useState([]);
   const [serviceMenuOpen, setServiceMenuOpen] = useState(false);
   const [date, setDate] = useState(todayISO());
   const [time, setTime] = useState(null);
-  const [customerTab, setCustomerTab] = useState("book"); // book | mine
+  const [customerTab, setCustomerTab] = useState("book");
   const [bookName, setBookName] = useState("");
   const [bookPhone, setBookPhone] = useState("");
-
-  // admin
   const [adminPass, setAdminPass] = useState("");
   const [adminPassVisible, setAdminPassVisible] = useState(false);
   const [adminError, setAdminError] = useState("");
-  const [adminTab, setAdminTab] = useState("appointments"); // appointments | barbers | services | settings | dashboard | customers
+  const [adminTab, setAdminTab] = useState("appointments");
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
   const [expandedCustomerId, setExpandedCustomerId] = useState(null);
   const [newBarberName, setNewBarberName] = useState("");
-  const [breakDrafts, setBreakDrafts] = useState({}); // { [barberId]: { start, end } }
+  const [breakDrafts, setBreakDrafts] = useState({});
   const [newService, setNewService] = useState({ name: "", duration: 30, price: "" });
   const [apptFilterDate, setApptFilterDate] = useState("");
   const [apptFilterBarber, setApptFilterBarber] = useState("");
   const [settingsDraft, setSettingsDraft] = useState(null);
   const [newAdminPass, setNewAdminPass] = useState("");
-  const [confirmDialog, setConfirmDialog] = useState(null); // { message, onConfirm }
+  const [confirmDialog, setConfirmDialog] = useState(null);
   const [showPastAdmin, setShowPastAdmin] = useState(false);
   const [showPastMine, setShowPastMine] = useState(false);
-
   function askConfirm(message, onConfirm) {
     setConfirmDialog({ message, onConfirm });
   }
-
   useEffect(() => {
     let finished = false;
     const safety = setTimeout(() => {
       if (!finished) setLoading(false);
-    }, 5000);
+    }, 5e3);
     (async () => {
       try {
         const [c, a, cu] = await Promise.all([
           storageGet("shop-config", true),
           storageGet("appointments", true),
-          storageGet("customers", true),
+          storageGet("customers", true)
         ]);
-        if (c) setConfig(c); else await storageSet("shop-config", DEFAULT_CONFIG, true);
+        if (c) setConfig(c);
+        else await storageSet("shop-config", DEFAULT_CONFIG, true);
         if (a) setAppointments(a);
         if (cu) setCustomers(cu);
       } catch (e) {
@@ -242,23 +272,20 @@ function BerberRandevuSistemi() {
     })();
     return () => clearTimeout(safety);
   }, []);
-
   useEffect(() => {
     if (view === "admin" && !settingsDraft) {
       setSettingsDraft({
         name: config.business.name,
         subtitle: config.business.subtitle,
         rating: config.business.rating,
-        reviewCount: config.business.reviewCount,
+        reviewCount: config.business.reviewCount
       });
     }
-  }, [view]); // eslint-disable-line
-
+  }, [view]);
   function showToast(type, text) {
     setToast({ type, text });
     setTimeout(() => setToast(null), 3500);
   }
-
   async function persistConfig(next) {
     setConfig(next);
     await storageSet("shop-config", next, true);
@@ -271,16 +298,14 @@ function BerberRandevuSistemi() {
     setCustomers(next);
     await storageSet("customers", next, true);
   }
-
   function normalizePhone(p) {
     return (p || "").replace(/\D/g, "");
   }
-
   async function handleLogin(e) {
     e.preventDefault();
     const phone = normalizePhone(loginPhone);
     if (!loginName.trim() || !isValidPhone(loginPhone)) {
-      showToast("error", "Lütfen adınızı ve geçerli bir telefon numarası girin (05xxxxxxxxx).");
+      showToast("error", "L\xFCtfen ad\u0131n\u0131z\u0131 ve ge\xE7erli bir telefon numaras\u0131 girin (05xxxxxxxxx).");
       return;
     }
     let existing = customers.find((c) => c.phone === phone);
@@ -288,8 +313,8 @@ function BerberRandevuSistemi() {
       existing = { id: uid(), name: loginName.trim(), phone };
       await persistCustomers([...customers, existing]);
     } else {
-      existing = { ...existing, name: loginName.trim() };
-      await persistCustomers(customers.map((c) => (c.id === existing.id ? existing : c)));
+      existing = __spreadProps(__spreadValues({}, existing), { name: loginName.trim() });
+      await persistCustomers(customers.map((c) => c.id === existing.id ? existing : c));
     }
     setCurrentCustomer(existing);
     setBookName(existing.name);
@@ -297,14 +322,16 @@ function BerberRandevuSistemi() {
     setView("booking");
     setCustomerTab("book");
   }
-
   function handleLogout() {
     setCurrentCustomer(null);
-    setBarberId(""); setServiceIds([]); setDate(todayISO()); setTime(null);
-    setLoginName(""); setLoginPhone("");
+    setBarberId("");
+    setServiceIds([]);
+    setDate(todayISO());
+    setTime(null);
+    setLoginName("");
+    setLoginPhone("");
     setView("login");
   }
-
   const selectedServices = useMemo(
     () => config.services.filter((s) => serviceIds.includes(s.id)),
     [config.services, serviceIds]
@@ -317,21 +344,21 @@ function BerberRandevuSistemi() {
     () => selectedServices.reduce((sum, s) => sum + s.price, 0),
     [selectedServices]
   );
-
   const slotInfo = useMemo(() => {
+    var _a, _b, _c;
     if (!barberId || !date) return { slots: [], closedDay: false };
     const barber = config.barbers.find((b) => b.id === barberId);
     if (!barber) return { slots: [], closedDay: false };
-    const weekday = new Date(date + "T00:00:00").getDay();
-    const workDays = barber.workDays ?? [1, 2, 3, 4, 5, 6];
+    const weekday = (/* @__PURE__ */ new Date(date + "T00:00:00")).getDay();
+    const workDays = (_a = barber.workDays) != null ? _a : [1, 2, 3, 4, 5, 6];
     if (!workDays.includes(weekday)) return { slots: [], closedDay: true };
-    const workStart = barber.workStart ?? OPEN_MIN;
-    const workEnd = barber.workEnd ?? CLOSE_MIN;
+    const workStart = (_b = barber.workStart) != null ? _b : OPEN_MIN;
+    const workEnd = (_c = barber.workEnd) != null ? _c : CLOSE_MIN;
     const breaks = barber.breaks || [];
     const dayAppts = appointments.filter(
       (a) => a.barberId === barberId && a.date === date && a.status !== "cancelled"
     );
-    const now = new Date();
+    const now = /* @__PURE__ */ new Date();
     const isToday = date === todayISO();
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
     const slots = [];
@@ -347,39 +374,34 @@ function BerberRandevuSistemi() {
     return { slots, closedDay: false };
   }, [barberId, date, totalDuration, appointments, config.barbers]);
   const availableSlots = slotInfo.slots;
-
   useEffect(() => {
     if (time !== null && !availableSlots.includes(time)) setTime(null);
-  }, [availableSlots]); // eslint-disable-line
-
+  }, [availableSlots]);
   function toggleService(id) {
-    setServiceIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setServiceIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   }
-
   async function handleBook(e) {
+    var _a;
     e.preventDefault();
     if (!currentCustomer) return;
     if (!bookName.trim() || !isValidPhone(bookPhone)) {
-      showToast("error", "Lütfen geçerli bir ad soyad ve telefon numarası girin.");
+      showToast("error", "L\xFCtfen ge\xE7erli bir ad soyad ve telefon numaras\u0131 girin.");
       return;
     }
     if (!barberId || serviceIds.length === 0 || !date || time === null) {
-      showToast("error", "Lütfen berber, işlem, tarih ve saat seçin.");
+      showToast("error", "L\xFCtfen berber, i\u015Flem, tarih ve saat se\xE7in.");
       return;
     }
-    // Re-check against the latest data right before saving to avoid double-booking
-    // if someone else grabbed the same slot in the meantime.
-    const fresh = (await storageGet("appointments", true)) ?? appointments;
+    const fresh = (_a = await storageGet("appointments", true)) != null ? _a : appointments;
     const start = time;
     const end = time + totalDuration;
     const stillConflicts = fresh.some(
-      (a) => a.barberId === barberId && a.date === date && a.status !== "cancelled" &&
-        start < a.startMinutes + a.durationMinutes && a.startMinutes < end
+      (a) => a.barberId === barberId && a.date === date && a.status !== "cancelled" && start < a.startMinutes + a.durationMinutes && a.startMinutes < end
     );
     if (stillConflicts) {
       setAppointments(fresh);
       setTime(null);
-      showToast("error", "Bu saat az önce doldu. Lütfen başka bir saat seçin.");
+      showToast("error", "Bu saat az \xF6nce doldu. L\xFCtfen ba\u015Fka bir saat se\xE7in.");
       return;
     }
     const appt = {
@@ -393,20 +415,21 @@ function BerberRandevuSistemi() {
       startMinutes: time,
       durationMinutes: totalDuration,
       status: "pending",
-      createdAt: new Date().toISOString(),
+      createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
     await persistAppointments([...fresh, appt]);
-    showToast("success", "Randevunuz alındı! Onay için bekleyin.");
-    setBarberId(""); setServiceIds([]); setTime(null); setDate(todayISO());
+    showToast("success", "Randevunuz al\u0131nd\u0131! Onay i\xE7in bekleyin.");
+    setBarberId("");
+    setServiceIds([]);
+    setTime(null);
+    setDate(todayISO());
     setCustomerTab("mine");
   }
-
   async function cancelOwnAppointment(id) {
-    const next = appointments.map((a) => (a.id === id ? { ...a, status: "cancelled" } : a));
+    const next = appointments.map((a) => a.id === id ? __spreadProps(__spreadValues({}, a), { status: "cancelled" }) : a);
     await persistAppointments(next);
     showToast("success", "Randevu iptal edildi.");
   }
-
   function handleAdminLogin(e) {
     e.preventDefault();
     if (adminPass === (config.business.adminPassword || "berber1881")) {
@@ -415,134 +438,128 @@ function BerberRandevuSistemi() {
       setView("admin");
       setAdminTab("appointments");
     } else {
-      setAdminError("Şifre hatalı.");
+      setAdminError("\u015Eifre hatal\u0131.");
     }
   }
-
   async function setApptStatus(id, status) {
-    await persistAppointments(appointments.map((a) => (a.id === id ? { ...a, status } : a)));
+    await persistAppointments(appointments.map((a) => a.id === id ? __spreadProps(__spreadValues({}, a), { status }) : a));
   }
   async function deleteAppt(id) {
     await persistAppointments(appointments.filter((a) => a.id !== id));
   }
   async function addBarber() {
     if (!newBarberName.trim()) return;
-    const next = {
-      ...config,
-      barbers: [...config.barbers, { id: uid(), name: newBarberName.trim(), workStart: OPEN_MIN, workEnd: CLOSE_MIN, breaks: [], workDays: [1, 2, 3, 4, 5, 6] }],
-    };
+    const next = __spreadProps(__spreadValues({}, config), {
+      barbers: [...config.barbers, { id: uid(), name: newBarberName.trim(), workStart: OPEN_MIN, workEnd: CLOSE_MIN, breaks: [], workDays: [1, 2, 3, 4, 5, 6] }]
+    });
     await persistConfig(next);
     setNewBarberName("");
   }
   async function removeBarber(id) {
-    await persistConfig({ ...config, barbers: config.barbers.filter((b) => b.id !== id) });
+    await persistConfig(__spreadProps(__spreadValues({}, config), { barbers: config.barbers.filter((b) => b.id !== id) }));
   }
   async function updateBarberHours(id, field, timeStr) {
     const mins = timeStrToMinutes(timeStr);
     if (mins === null) return;
-    const next = {
-      ...config,
-      barbers: config.barbers.map((b) => (b.id === id ? { ...b, [field]: mins } : b)),
-    };
+    const next = __spreadProps(__spreadValues({}, config), {
+      barbers: config.barbers.map((b) => b.id === id ? __spreadProps(__spreadValues({}, b), { [field]: mins }) : b)
+    });
     await persistConfig(next);
   }
   async function toggleBarberWorkDay(id, dayId) {
-    const next = {
-      ...config,
+    const next = __spreadProps(__spreadValues({}, config), {
       barbers: config.barbers.map((b) => {
+        var _a;
         if (b.id !== id) return b;
-        const days = b.workDays ?? [1, 2, 3, 4, 5, 6];
+        const days = (_a = b.workDays) != null ? _a : [1, 2, 3, 4, 5, 6];
         const already = days.includes(dayId);
-        return { ...b, workDays: already ? days.filter((d) => d !== dayId) : [...days, dayId].sort() };
-      }),
-    };
+        return __spreadProps(__spreadValues({}, b), { workDays: already ? days.filter((d) => d !== dayId) : [...days, dayId].sort() });
+      })
+    });
     await persistConfig(next);
   }
   async function addBarberBreak(id) {
+    var _a, _b;
     const draft = breakDrafts[id];
     if (!draft || !draft.start || !draft.end) return;
     const barber = config.barbers.find((b) => b.id === id);
     const start = timeStrToMinutes(draft.start);
     const end = timeStrToMinutes(draft.end);
     if (start === null || end === null || end <= start) {
-      showToast("error", "Mola bitiş saati başlangıçtan sonra olmalı.");
+      showToast("error", "Mola biti\u015F saati ba\u015Flang\u0131\xE7tan sonra olmal\u0131.");
       return;
     }
-    const workStart = barber?.workStart ?? OPEN_MIN;
-    const workEnd = barber?.workEnd ?? CLOSE_MIN;
+    const workStart = (_a = barber == null ? void 0 : barber.workStart) != null ? _a : OPEN_MIN;
+    const workEnd = (_b = barber == null ? void 0 : barber.workEnd) != null ? _b : CLOSE_MIN;
     if (start < workStart || end > workEnd) {
-      showToast("error", "Mola, çalışma saatleri içinde olmalı.");
+      showToast("error", "Mola, \xE7al\u0131\u015Fma saatleri i\xE7inde olmal\u0131.");
       return;
     }
-    const next = {
-      ...config,
-      barbers: config.barbers.map((b) =>
-        b.id === id ? { ...b, breaks: [...(b.breaks || []), { start, end }] } : b
-      ),
-    };
+    const next = __spreadProps(__spreadValues({}, config), {
+      barbers: config.barbers.map(
+        (b) => b.id === id ? __spreadProps(__spreadValues({}, b), { breaks: [...b.breaks || [], { start, end }] }) : b
+      )
+    });
     await persistConfig(next);
-    setBreakDrafts({ ...breakDrafts, [id]: { start: "", end: "" } });
+    setBreakDrafts(__spreadProps(__spreadValues({}, breakDrafts), { [id]: { start: "", end: "" } }));
   }
   async function removeBarberBreak(id, index) {
-    const next = {
-      ...config,
-      barbers: config.barbers.map((b) =>
-        b.id === id ? { ...b, breaks: (b.breaks || []).filter((_, i) => i !== index) } : b
-      ),
-    };
+    const next = __spreadProps(__spreadValues({}, config), {
+      barbers: config.barbers.map(
+        (b) => b.id === id ? __spreadProps(__spreadValues({}, b), { breaks: (b.breaks || []).filter((_, i) => i !== index) }) : b
+      )
+    });
     await persistConfig(next);
   }
   async function addService() {
     if (!newService.name.trim() || !newService.price) return;
-    const next = {
-      ...config,
+    const next = __spreadProps(__spreadValues({}, config), {
       services: [...config.services, {
-        id: uid(), name: newService.name.trim(),
+        id: uid(),
+        name: newService.name.trim(),
         duration: Number(newService.duration) || 30,
-        price: Number(newService.price) || 0,
-      }],
-    };
+        price: Number(newService.price) || 0
+      }]
+    });
     await persistConfig(next);
     setNewService({ name: "", duration: 30, price: "" });
   }
   async function removeService(id) {
-    await persistConfig({ ...config, services: config.services.filter((s) => s.id !== id) });
+    await persistConfig(__spreadProps(__spreadValues({}, config), { services: config.services.filter((s) => s.id !== id) }));
   }
   async function saveSettings() {
     if (!settingsDraft) return;
-    const updated = {
-      ...config,
-      business: {
-        ...config.business,
+    const updated = __spreadProps(__spreadValues({}, config), {
+      business: __spreadProps(__spreadValues({}, config.business), {
         name: settingsDraft.name.trim() || config.business.name,
         subtitle: settingsDraft.subtitle.trim() || config.business.subtitle,
         rating: Number(settingsDraft.rating) || config.business.rating,
         reviewCount: Number(settingsDraft.reviewCount) || config.business.reviewCount,
-        adminPassword: newAdminPass.trim() ? newAdminPass.trim() : config.business.adminPassword,
-      },
-    };
+        adminPassword: newAdminPass.trim() ? newAdminPass.trim() : config.business.adminPassword
+      })
+    });
     await persistConfig(updated);
     setNewAdminPass("");
     showToast("success", "Ayarlar kaydedildi.");
   }
-
-  function barberName(id) { return config.barbers.find((b) => b.id === id)?.name || "—"; }
+  function barberName(id) {
+    var _a;
+    return ((_a = config.barbers.find((b) => b.id === id)) == null ? void 0 : _a.name) || "\u2014";
+  }
   function serviceNames(ids) {
-    return ids.map((id) => config.services.find((s) => s.id === id)?.name).filter(Boolean).join(", ");
+    return ids.map((id) => {
+      var _a;
+      return (_a = config.services.find((s) => s.id === id)) == null ? void 0 : _a.name;
+    }).filter(Boolean).join(", ");
   }
   function isPastAppointment(a) {
-    const end = new Date(a.date + "T00:00:00").getTime() + (a.startMinutes + a.durationMinutes) * 60000;
+    const end = (/* @__PURE__ */ new Date(a.date + "T00:00:00")).getTime() + (a.startMinutes + a.durationMinutes) * 6e4;
     return end < Date.now();
   }
-
   const myAppointments = useMemo(
-    () => appointments
-      .filter((a) => currentCustomer && a.customerId === currentCustomer.id)
-      .filter((a) => showPastMine || !isPastAppointment(a))
-      .sort((a, b) => (a.date + toLabel(a.startMinutes)).localeCompare(b.date + toLabel(b.startMinutes))),
+    () => appointments.filter((a) => currentCustomer && a.customerId === currentCustomer.id).filter((a) => showPastMine || !isPastAppointment(a)).sort((a, b) => (a.date + toLabel(a.startMinutes)).localeCompare(b.date + toLabel(b.startMinutes))),
     [appointments, currentCustomer, showPastMine]
   );
-
   const sortedAdminAppts = useMemo(() => {
     let list = [...appointments];
     if (apptFilterDate) list = list.filter((a) => a.date === apptFilterDate);
@@ -550,654 +567,365 @@ function BerberRandevuSistemi() {
     if (apptFilterBarber) list = list.filter((a) => a.barberId === apptFilterBarber);
     return list.sort((a, b) => (b.date + toLabel(b.startMinutes)).localeCompare(a.date + toLabel(a.startMinutes)));
   }, [appointments, apptFilterDate, apptFilterBarber, showPastAdmin]);
-
   const customersWithStats = useMemo(() => {
-    const list = customers
-      .map((c) => {
-        const apps = appointments.filter((a) => a.customerId === c.id);
-        if (apps.length === 0) return null;
-        const sortedApps = [...apps].sort((a, b) => (b.date + toLabel(b.startMinutes)).localeCompare(a.date + toLabel(a.startMinutes)));
-        const cancelled = apps.filter((a) => a.status === "cancelled").length;
-        return {
-          ...c,
-          count: apps.length,
-          cancelled,
-          lastAppt: sortedApps[0],
-          appts: sortedApps,
-        };
-      })
-      .filter(Boolean);
+    const list = customers.map((c) => {
+      const apps = appointments.filter((a) => a.customerId === c.id);
+      if (apps.length === 0) return null;
+      const sortedApps = [...apps].sort((a, b) => (b.date + toLabel(b.startMinutes)).localeCompare(a.date + toLabel(a.startMinutes)));
+      const cancelled = apps.filter((a) => a.status === "cancelled").length;
+      return __spreadProps(__spreadValues({}, c), {
+        count: apps.length,
+        cancelled,
+        lastAppt: sortedApps[0],
+        appts: sortedApps
+      });
+    }).filter(Boolean);
     const q = customerSearch.trim().toLowerCase();
-    const filtered = q
-      ? list.filter((c) => c.name.toLowerCase().includes(q) || c.phone.includes(q.replace(/\D/g, "")))
-      : list;
+    const filtered = q ? list.filter((c) => c.name.toLowerCase().includes(q) || c.phone.includes(q.replace(/\D/g, ""))) : list;
     return filtered.sort((a, b) => (b.lastAppt.date + toLabel(b.lastAppt.startMinutes)).localeCompare(a.lastAppt.date + toLabel(a.lastAppt.startMinutes)));
   }, [customers, appointments, customerSearch]);
-
   const statusStyles = {
     pending: "bg-amber-100 text-amber-800 border-amber-300",
     confirmed: "bg-emerald-100 text-emerald-800 border-emerald-300",
-    cancelled: "bg-rose-100 text-rose-700 border-rose-300",
+    cancelled: "bg-rose-100 text-rose-700 border-rose-300"
   };
-  const statusLabels = { pending: "Bekliyor", confirmed: "Onaylandı", cancelled: "İptal Edildi" };
-
+  const statusLabels = { pending: "Bekliyor", confirmed: "Onayland\u0131", cancelled: "\u0130ptal Edildi" };
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-800">
-        <Loader2 className="animate-spin text-amber-500" size={40} />
-      </div>
-    );
+    return /* @__PURE__ */ React.createElement("div", { className: "min-h-screen flex items-center justify-center bg-stone-800" }, /* @__PURE__ */ React.createElement(Loader2, { className: "animate-spin text-amber-500", size: 40 }));
   }
-
-  return (
-    <div className="min-h-screen relative overflow-x-hidden" style={{ background: "linear-gradient(180deg,#8a8a86 0%,#5b5a56 35%,#2c2b29 75%,#1a1918 100%)" }}>
-      {/* ambient blur shapes mimicking an out-of-focus barbershop photo */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-50">
-        <div className="absolute -top-24 -left-16 w-96 h-96 bg-stone-400 rounded-full blur-3xl" />
-        <div className="absolute top-32 right-0 w-80 h-80 bg-stone-600 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-black rounded-full blur-3xl" />
-      </div>
-
-      {/* top bar */}
-      <div className="relative z-10 flex justify-between items-center px-6 pt-6 max-w-md mx-auto">
-        <div>
-          {view === "booking" && (
-            <button onClick={handleLogout} className="flex items-center gap-1 text-sm font-semibold text-stone-200 bg-white/10 rounded-full px-4 py-2">
-              <LogOut size={15} /> Çıkış
-            </button>
-          )}
-          {view === "admin" && (
-            <button onClick={() => setView("login")} className="flex items-center gap-1 text-sm font-semibold text-stone-200 bg-white/10 rounded-full px-4 py-2">
-              <ArrowLeft size={15} /> Ana Sayfa
-            </button>
-          )}
-        </div>
-        {view === "login" && (
-          <button
-            onClick={() => setView("adminLogin")}
-            className="bg-white text-stone-900 font-bold rounded-2xl px-5 py-2.5 shadow-lg text-sm"
-          >
-            Admin Girişi
-          </button>
-        )}
-        {view === "admin" && (
-          <button onClick={() => { setView("login"); }} className="flex items-center gap-1 text-sm font-semibold text-white bg-stone-900/60 rounded-full px-4 py-2">
-            <LogOut size={15} /> Çıkış Yap
-          </button>
-        )}
-      </div>
-
-      {/* Logo badge */}
-      {view !== "admin" && view !== "adminLogin" && (
-        <div className="relative z-10 flex justify-center mt-2">
-          <img
-            src={LOGO_DATA_URI}
-            alt={`${config.business.name} logo`}
-            className="w-36 h-36 rounded-full shadow-2xl object-contain"
-          />
-        </div>
-      )}
-
-      <div className="relative z-10 max-w-md mx-auto px-5 pb-16">
-        {view !== "admin" && view !== "adminLogin" && (
-          <div className="text-center mt-4 mb-6">
-            <h1 className="text-4xl font-extrabold text-white tracking-tight uppercase">{config.business.name}</h1>
-            <p className="text-stone-300 tracking-widest text-sm mt-1 uppercase">{config.business.subtitle}</p>
-            <div className="flex items-center justify-center gap-1.5 mt-3">
-              <Star className="text-amber-400 fill-amber-400" size={18} />
-              <span className="text-amber-300 font-semibold">{config.business.rating} ({config.business.reviewCount})</span>
-            </div>
-          </div>
-        )}
-
-        {toast && (
-          <div className={`mb-4 rounded-xl px-4 py-3 text-sm font-medium border ${toast.type === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"}`}>
-            {toast.text}
-          </div>
-        )}
-
-        {/* LOGIN VIEW */}
-        {view === "login" && (
-          <div className="bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-6">
-            <h2 className="text-stone-900 font-bold text-lg mb-1">Müşteri Girişi</h2>
-            <p className="text-stone-500 text-sm mb-5">Randevu almak için adınızı ve telefon numaranızı girin.</p>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-stone-800 font-bold mb-2 text-sm">Ad Soyad</label>
-                <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4">
-                  <User className="text-stone-400 mr-2" size={18} />
-                  <input value={loginName} onChange={(e) => setLoginName(e.target.value)}
-                    placeholder="Adınız ve Soyadınız"
-                    className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-stone-800 font-bold mb-2 text-sm">Telefon</label>
-                <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4">
-                  <Phone className="text-stone-400 mr-2" size={18} />
-                  <input value={loginPhone} onChange={(e) => setLoginPhone(e.target.value)}
-                    placeholder="05xxxxxxxxx"
-                    className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none" />
-                </div>
-              </div>
-              <button type="submit" className="w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-4 shadow-lg tracking-wide">
-                GİRİŞ YAP
-              </button>
-              <p className="text-xs text-stone-400 text-center">Kayıtlı değilseniz otomatik olarak hesabınız oluşturulur.</p>
-            </form>
-          </div>
-        )}
-
-        {/* BOOKING VIEW */}
-        {view === "booking" && currentCustomer && (
-          <div className="bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <p className="text-stone-500 text-xs">Merhaba,</p>
-                <p className="text-stone-900 font-bold">{currentCustomer.name}</p>
-              </div>
-              <div className="flex bg-stone-100 rounded-full p-1">
-                <button onClick={() => setCustomerTab("book")}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold ${customerTab === "book" ? "bg-stone-900 text-white" : "text-stone-500"}`}>
-                  Randevu Al
-                </button>
-                <button onClick={() => setCustomerTab("mine")}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold ${customerTab === "mine" ? "bg-stone-900 text-white" : "text-stone-500"}`}>
-                  Randevularım
-                </button>
-              </div>
-            </div>
-
-            {customerTab === "book" && (
-              <form onSubmit={handleBook} className="space-y-5">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-stone-800 font-bold mb-2 text-sm">Ad Soyad</label>
-                    <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-3">
-                      <User className="text-stone-400 mr-1.5" size={16} />
-                      <input value={bookName} onChange={(e) => setBookName(e.target.value)}
-                        placeholder="Adınız ve Soyadınız"
-                        className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-stone-800 font-bold mb-2 text-sm">Telefon</label>
-                    <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-3">
-                      <Phone className="text-stone-400 mr-1.5" size={16} />
-                      <input value={bookPhone} onChange={(e) => setBookPhone(e.target.value)}
-                        placeholder="05xxxxxxxxx"
-                        className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-stone-800 font-bold mb-2 text-sm">Berber Seçimi</label>
-                    <select value={barberId} onChange={(e) => { setBarberId(e.target.value); setTime(null); }}
-                      className="w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-3 text-stone-800 outline-none">
-                      <option value="">Seçiniz</option>
-                      {config.barbers.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
-                    </select>
-                  </div>
-                  <div className="relative">
-                    <label className="block text-stone-800 font-bold mb-2 text-sm">İşlem Seçimi</label>
-                    <button type="button" onClick={() => setServiceMenuOpen((v) => !v)}
-                      className="w-full flex items-center justify-between bg-white border border-stone-300 rounded-xl px-3 py-3 text-stone-800 font-medium">
-                      <span>{serviceIds.length ? `${serviceIds.length} seçildi` : "Seçiniz"}</span>
-                      <ChevronDown size={16} />
-                    </button>
-                    {serviceMenuOpen && (
-                      <div className="absolute z-20 mt-1 w-full bg-white border border-stone-200 rounded-xl shadow-xl p-2 max-h-56 overflow-y-auto">
-                        {config.services.map((s) => (
-                          <label key={s.id} className="flex items-center justify-between gap-2 px-2 py-2 rounded-lg hover:bg-stone-50 cursor-pointer">
-                            <span className="flex items-center gap-2">
-                              <input type="checkbox" checked={serviceIds.includes(s.id)} onChange={() => { toggleService(s.id); setTime(null); }} />
-                              <span className="text-sm text-stone-700">{s.name}</span>
-                            </span>
-                            <span className="text-xs text-stone-400">{s.duration}dk · {s.price}₺</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-stone-800 font-bold mb-2 text-sm">Tarih</label>
-                  <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4">
-                    <Calendar className="text-stone-400 mr-2" size={18} />
-                    <input type="date" min={todayISO()} value={date}
-                      onChange={(e) => { setDate(e.target.value); setTime(null); }}
-                      className="w-full bg-transparent py-3 text-stone-800 outline-none" />
-                  </div>
-                  <p className="text-xs text-stone-400 mt-1">{dateLabel(date)}</p>
-                </div>
-
-                <div>
-                  <label className="block text-stone-800 font-bold mb-2 text-sm">Saat Seçimi</label>
-                  {!barberId || serviceIds.length === 0 ? (
-                    <p className="text-stone-400 text-sm">Lütfen bir berber ve işlem seçin.</p>
-                  ) : slotInfo.closedDay ? (
-                    <p className="text-stone-400 text-sm">Seçilen berber bu gün çalışmıyor. Lütfen başka bir tarih seçin.</p>
-                  ) : availableSlots.length === 0 ? (
-                    <p className="text-stone-400 text-sm">Bu tarihte uygun saat bulunmuyor.</p>
-                  ) : (
-                    <div className="grid grid-cols-4 gap-2">
-                      {availableSlots.map((m) => (
-                        <button key={m} type="button" onClick={() => setTime(m)}
-                          className={`text-sm font-semibold rounded-lg py-2 border ${time === m ? "bg-stone-900 text-white border-stone-900" : "bg-stone-50 text-stone-700 border-stone-200"}`}>
-                          {toLabel(m)}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {selectedServices.length > 0 && (
-                  <div className="flex justify-between text-sm bg-stone-50 rounded-xl px-4 py-3 border border-stone-100">
-                    <span className="text-stone-500">Toplam: {totalDuration} dk</span>
-                    <span className="font-bold text-stone-800">{totalPrice}₺</span>
-                  </div>
-                )}
-
-                <button type="submit" className="w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-4 shadow-lg tracking-wide">
-                  RANDEVU AL
-                </button>
-              </form>
-            )}
-
-            {customerTab === "mine" && (
-              <div className="space-y-3">
-                <div className="flex justify-end">
-                  <label className="flex items-center gap-1.5 text-xs text-stone-400 font-medium">
-                    <input type="checkbox" checked={showPastMine} onChange={(e) => setShowPastMine(e.target.checked)} />
-                    Geçmiş randevuları göster
-                  </label>
-                </div>
-                {myAppointments.length === 0 && (
-                  <p className="text-stone-400 text-sm text-center py-6">
-                    {showPastMine ? "Randevunuz yok." : "Yaklaşan randevunuz yok."}
-                  </p>
-                )}
-                {myAppointments.map((a) => (
-                  <div key={a.id} className="border border-stone-200 rounded-xl p-4">
-                    <div className="flex justify-between items-start mb-1">
-                      <div>
-                        <p className="font-bold text-stone-900">{dateLabel(a.date)} · {toLabel(a.startMinutes)}</p>
-                        <p className="text-sm text-stone-500">{barberName(a.barberId)} — {serviceNames(a.serviceIds)}</p>
-                      </div>
-                      <span className={`text-xs font-semibold border rounded-full px-2 py-1 ${statusStyles[a.status]}`}>
-                        {statusLabels[a.status]}
-                      </span>
-                    </div>
-                    {a.status === "pending" && (
-                      <button onClick={() => cancelOwnAppointment(a.id)} className="text-xs font-semibold text-rose-600 mt-2">
-                        Randevuyu İptal Et
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ADMIN LOGIN */}
-        {view === "adminLogin" && (
-          <div className="bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-6 mt-24">
-            <div className="flex items-center gap-2 mb-1">
-              <Lock className="text-stone-800" size={20} />
-              <h2 className="text-stone-900 font-bold text-lg">Admin Girişi</h2>
-            </div>
-            <p className="text-stone-500 text-sm mb-5">Yönetim paneline erişmek için şifrenizi girin.</p>
-            <form onSubmit={handleAdminLogin} className="space-y-4">
-              <input type="password" value={adminPass} onChange={(e) => setAdminPass(e.target.value)}
-                placeholder="Şifre"
-                className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
-              {adminError && <p className="text-rose-600 text-sm">{adminError}</p>}
-              <button type="submit" className="w-full bg-stone-900 text-white font-bold rounded-xl py-3.5">Giriş Yap</button>
-              <button type="button" onClick={() => setView("login")} className="w-full text-stone-500 text-sm py-1">Vazgeç</button>
-            </form>
-          </div>
-        )}
-
-        {/* ADMIN PANEL */}
-        {view === "admin" && (
-          <div className="mt-6">
-            <div className="relative mb-4">
-              <button type="button" onClick={() => setAdminMenuOpen((v) => !v)}
-                className="w-full flex items-center justify-between bg-white/95 backdrop-blur rounded-2xl px-4 py-3.5 shadow-lg border border-white/40">
-                <span className="flex items-center gap-2 font-bold text-stone-900">
-                  {(() => {
-                    const current = ADMIN_TABS.find((t) => t.id === adminTab) || ADMIN_TABS[0];
-                    const Icon = current.icon;
-                    return (<><Icon size={17} className="text-amber-600" /> {current.label}</>);
-                  })()}
-                </span>
-                <ChevronDown size={18} className={`text-stone-500 transition-transform ${adminMenuOpen ? "rotate-180" : ""}`} />
-              </button>
-              {adminMenuOpen && (
-                <div className="absolute z-20 mt-1.5 w-full bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden">
-                  {ADMIN_TABS.map((t) => (
-                    <button key={t.id} type="button" onClick={() => { setAdminTab(t.id); setAdminMenuOpen(false); }}
-                      className={`w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-left ${adminTab === t.id ? "bg-amber-50 text-amber-700" : "text-stone-700"}`}>
-                      <t.icon size={16} /> {t.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-5">
-              {adminTab === "dashboard" && (
-                <div className="space-y-4">
-                  <h2 className="text-stone-900 font-bold text-lg">Genel Bakış</h2>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-stone-50 rounded-xl p-4 border border-stone-100">
-                      <p className="text-stone-400 text-xs">Toplam Randevu</p>
-                      <p className="text-2xl font-extrabold text-stone-900">{appointments.length}</p>
-                    </div>
-                    <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
-                      <p className="text-amber-600 text-xs">Bekleyen</p>
-                      <p className="text-2xl font-extrabold text-amber-700">{appointments.filter((a) => a.status === "pending").length}</p>
-                    </div>
-                    <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
-                      <p className="text-emerald-600 text-xs">Onaylanan</p>
-                      <p className="text-2xl font-extrabold text-emerald-700">{appointments.filter((a) => a.status === "confirmed").length}</p>
-                    </div>
-                    <button onClick={() => setAdminTab("customers")} className="bg-stone-50 rounded-xl p-4 border border-stone-100 text-left">
-                      <p className="text-stone-400 text-xs">Randevu Alan Müşteri</p>
-                      <p className="text-2xl font-extrabold text-stone-900">{customersWithStats.length}</p>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {adminTab === "customers" && (
-                <div>
-                  <h2 className="text-stone-900 font-bold text-lg mb-3">Müşteriler</h2>
-                  <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-3 mb-4">
-                    <Search className="text-stone-400 mr-1.5" size={16} />
-                    <input value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)}
-                      placeholder="İsim veya telefon ile ara"
-                      className="w-full bg-transparent py-2.5 text-stone-800 placeholder-stone-400 outline-none text-sm" />
-                  </div>
-                  <div className="space-y-2 max-h-[30rem] overflow-y-auto">
-                    {customersWithStats.length === 0 && (
-                      <p className="text-stone-400 text-sm text-center py-6">
-                        {customerSearch ? "Eşleşen müşteri bulunamadı." : "Henüz randevu oluşturan müşteri yok."}
-                      </p>
-                    )}
-                    {customersWithStats.map((c) => {
-                      const isOpen = expandedCustomerId === c.id;
-                      return (
-                        <div key={c.id} className="border border-stone-200 rounded-xl overflow-hidden">
-                          <button type="button" onClick={() => setExpandedCustomerId(isOpen ? null : c.id)}
-                            className="w-full flex items-center justify-between px-4 py-3 text-left">
-                            <div>
-                              <p className="font-bold text-stone-900">{c.name}</p>
-                              <p className="text-xs text-stone-500">{c.phone}</p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="text-right">
-                                <p className="text-xs text-stone-400">{c.count} randevu</p>
-                                <p className="text-[11px] text-stone-400">Son: {dateLabel(c.lastAppt.date)}</p>
-                              </div>
-                              <ChevronDown size={16} className={`text-stone-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-                            </div>
-                          </button>
-                          {isOpen && (
-                            <div className="border-t border-stone-100 bg-stone-50 px-4 py-3 space-y-2">
-                              {c.appts.map((a) => (
-                                <div key={a.id} className="flex items-center justify-between text-sm">
-                                  <div>
-                                    <p className="text-stone-700 font-medium">{dateLabel(a.date)} · {toLabel(a.startMinutes)}</p>
-                                    <p className="text-xs text-stone-400">{barberName(a.barberId)} — {serviceNames(a.serviceIds)}</p>
-                                  </div>
-                                  <span className={`text-[11px] font-semibold border rounded-full px-2 py-0.5 ${statusStyles[a.status]}`}>{statusLabels[a.status]}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {adminTab === "appointments" && (
-                <div>
-                  <h2 className="text-stone-900 font-bold text-lg mb-3">Randevular</h2>
-                  <div className="flex gap-2 mb-3">
-                    <select value={apptFilterBarber} onChange={(e) => setApptFilterBarber(e.target.value)}
-                      className="flex-1 bg-stone-100 border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700">
-                      <option value="">Tüm Berberler</option>
-                      {config.barbers.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
-                    </select>
-                    <input type="date" value={apptFilterDate} onChange={(e) => setApptFilterDate(e.target.value)}
-                      className="flex-1 bg-stone-100 border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700" />
-                  </div>
-                  {(apptFilterDate || apptFilterBarber) && (
-                    <button onClick={() => { setApptFilterDate(""); setApptFilterBarber(""); }} className="text-xs text-stone-400 mb-3 underline">Filtreleri temizle</button>
-                  )}
-                  <div className="flex justify-end mb-2">
-                    <label className="flex items-center gap-1.5 text-xs text-stone-400 font-medium">
-                      <input type="checkbox" checked={showPastAdmin} onChange={(e) => setShowPastAdmin(e.target.checked)} />
-                      Geçmiş randevuları göster
-                    </label>
-                  </div>
-                  <div className="space-y-3 max-h-[28rem] overflow-y-auto">
-                    {sortedAdminAppts.length === 0 && <p className="text-stone-400 text-sm text-center py-6">Randevu bulunmuyor.</p>}
-                    {sortedAdminAppts.map((a) => (
-                      <div key={a.id} className="border border-stone-200 rounded-xl p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-bold text-stone-900">{a.customerName} <span className="text-stone-400 font-normal">· {a.phone}</span></p>
-                            <p className="text-sm text-stone-600">{dateLabel(a.date)} · {toLabel(a.startMinutes)} ({a.durationMinutes} dk)</p>
-                            <p className="text-sm text-stone-500">{barberName(a.barberId)} — {serviceNames(a.serviceIds)}</p>
-                          </div>
-                          <span className={`text-xs font-semibold border rounded-full px-2 py-1 ${statusStyles[a.status]}`}>{statusLabels[a.status]}</span>
-                        </div>
-                        <div className="flex gap-2 mt-3">
-                          {a.status !== "confirmed" && (
-                            <button onClick={() => setApptStatus(a.id, "confirmed")} className="flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full px-3 py-1.5">
-                              <BadgeCheck size={14} /> Onayla
-                            </button>
-                          )}
-                          {a.status !== "cancelled" && (
-                            <button onClick={() => setApptStatus(a.id, "cancelled")} className="flex items-center gap-1 text-xs font-semibold text-rose-700 bg-rose-50 rounded-full px-3 py-1.5">
-                              <Ban size={14} /> İptal Et
-                            </button>
-                          )}
-                          <button onClick={() => askConfirm("Bu randevuyu kalıcı olarak silmek istediğinize emin misiniz?", () => deleteAppt(a.id))} className="flex items-center gap-1 text-xs font-semibold text-stone-500 bg-stone-100 rounded-full px-3 py-1.5 ml-auto">
-                            <Trash2 size={14} /> Sil
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {adminTab === "barbers" && (
-                <div>
-                  <h2 className="text-stone-900 font-bold text-lg mb-3">Berberler</h2>
-                  <div className="space-y-3 mb-4">
-                    {config.barbers.map((b) => (
-                      <div key={b.id} className="border border-stone-200 rounded-xl p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-stone-900 font-bold text-sm">{b.name}</span>
-                          <button onClick={() => askConfirm(`${b.name} silinsin mi? Bu berbere ait randevu geçmişi kalır ancak yeni randevu alınamaz.`, () => removeBarber(b.id))} className="text-rose-500"><Trash2 size={14} /></button>
-                        </div>
-
-                        <p className="text-[11px] font-semibold text-stone-500 mb-1">Çalışma Günleri</p>
-                        <div className="flex gap-1 mb-2 flex-wrap">
-                          {WEEKDAYS.map((d) => {
-                            const active = (b.workDays ?? [1, 2, 3, 4, 5, 6]).includes(d.id);
-                            return (
-                              <button key={d.id} type="button" onClick={() => toggleBarberWorkDay(b.id, d.id)}
-                                className={`text-[11px] font-semibold rounded-md px-2 py-1 border ${active ? "bg-stone-900 text-white border-stone-900" : "bg-stone-50 text-stone-400 border-stone-200"}`}>
-                                {d.short}
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        <p className="text-[11px] font-semibold text-stone-500 mb-1">Çalışma Saatleri</p>
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <div className="flex items-center gap-1 bg-stone-100 rounded-md px-2 py-1">
-                            <Clock size={12} className="text-stone-400" />
-                            <input type="time" value={toLabel(b.workStart ?? OPEN_MIN)}
-                              onChange={(e) => updateBarberHours(b.id, "workStart", e.target.value)}
-                              className="bg-transparent text-xs text-stone-800 outline-none" />
-                          </div>
-                          <span className="text-stone-400 text-xs">—</span>
-                          <div className="flex items-center gap-1 bg-stone-100 rounded-md px-2 py-1">
-                            <Clock size={12} className="text-stone-400" />
-                            <input type="time" value={toLabel(b.workEnd ?? CLOSE_MIN)}
-                              onChange={(e) => updateBarberHours(b.id, "workEnd", e.target.value)}
-                              className="bg-transparent text-xs text-stone-800 outline-none" />
-                          </div>
-                        </div>
-
-                        <p className="text-[11px] font-semibold text-stone-500 mb-1">Molalar</p>
-                        <div className="space-y-1 mb-1.5">
-                          {(b.breaks || []).length === 0 && (
-                            <p className="text-[11px] text-stone-400">Tanımlı mola yok.</p>
-                          )}
-                          {(b.breaks || []).map((br, i) => (
-                            <div key={i} className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-md px-2 py-1">
-                              <span className="text-[11px] font-semibold text-amber-800">{toLabel(br.start)} – {toLabel(br.end)}</span>
-                              <button onClick={() => removeBarberBreak(b.id, i)} className="text-rose-500"><X size={12} /></button>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <input type="time" value={breakDrafts[b.id]?.start || ""}
-                            onChange={(e) => setBreakDrafts({ ...breakDrafts, [b.id]: { ...breakDrafts[b.id], start: e.target.value } })}
-                            className="flex-1 bg-stone-100 border border-stone-200 rounded-md px-1.5 py-1 text-[11px] text-stone-800 outline-none" />
-                          <span className="text-stone-400 text-[11px]">—</span>
-                          <input type="time" value={breakDrafts[b.id]?.end || ""}
-                            onChange={(e) => setBreakDrafts({ ...breakDrafts, [b.id]: { ...breakDrafts[b.id], end: e.target.value } })}
-                            className="flex-1 bg-stone-100 border border-stone-200 rounded-md px-1.5 py-1 text-[11px] text-stone-800 outline-none" />
-                          <button onClick={() => addBarberBreak(b.id)} className="bg-stone-900 text-white rounded-md px-2 py-1"><Plus size={12} /></button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <input value={newBarberName} onChange={(e) => setNewBarberName(e.target.value)} placeholder="Yeni berber adı"
-                      className="flex-1 bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
-                    <button onClick={addBarber} className="bg-stone-900 text-white rounded-xl px-4 flex items-center"><Plus size={18} /></button>
-                  </div>
-                </div>
-              )}
-
-              {adminTab === "services" && (
-                <div>
-                  <h2 className="text-stone-900 font-bold text-lg mb-4">Hizmetler</h2>
-                  <div className="space-y-2 mb-4">
-                    {config.services.map((s) => (
-                      <div key={s.id} className="flex items-center justify-between border border-stone-200 rounded-xl px-4 py-3">
-                        <div>
-                          <p className="text-stone-800 font-medium">{s.name}</p>
-                          <p className="text-xs text-stone-400">{s.duration} dk · {s.price}₺</p>
-                        </div>
-                        <button onClick={() => askConfirm(`${s.name} hizmeti silinsin mi?`, () => removeService(s.id))} className="text-rose-500"><Trash2 size={16} /></button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 mb-2">
-                    <input value={newService.name} onChange={(e) => setNewService({ ...newService, name: e.target.value })} placeholder="Hizmet adı"
-                      className="col-span-3 bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5 text-stone-800 outline-none text-sm" />
-                    <input type="number" value={newService.duration} onChange={(e) => setNewService({ ...newService, duration: e.target.value })} placeholder="Dakika"
-                      className="bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5 text-stone-800 outline-none text-sm" />
-                    <input type="number" value={newService.price} onChange={(e) => setNewService({ ...newService, price: e.target.value })} placeholder="Fiyat ₺"
-                      className="bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5 text-stone-800 outline-none text-sm" />
-                    <button onClick={addService} className="bg-stone-900 text-white rounded-xl flex items-center justify-center"><Plus size={18} /></button>
-                  </div>
-                </div>
-              )}
-
-              {adminTab === "settings" && settingsDraft && (
-                <div className="space-y-5">
-                  <h2 className="text-stone-900 font-bold text-lg">İşletme Ayarları</h2>
-                  <div>
-                    <label className="block text-stone-800 font-bold mb-2 text-sm">İşletme Adı</label>
-                    <input value={settingsDraft.name} onChange={(e) => setSettingsDraft({ ...settingsDraft, name: e.target.value })}
-                      className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-stone-800 font-bold mb-2 text-sm">Alt Başlık</label>
-                    <input value={settingsDraft.subtitle} onChange={(e) => setSettingsDraft({ ...settingsDraft, subtitle: e.target.value })}
-                      className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-stone-800 font-bold mb-2 text-sm">Puan</label>
-                      <input type="number" step="0.1" min="0" max="5" value={settingsDraft.rating}
-                        onChange={(e) => setSettingsDraft({ ...settingsDraft, rating: e.target.value })}
-                        className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
-                    </div>
-                    <div>
-                      <label className="block text-stone-800 font-bold mb-2 text-sm">Değerlendirme Sayısı</label>
-                      <input type="number" min="0" value={settingsDraft.reviewCount}
-                        onChange={(e) => setSettingsDraft({ ...settingsDraft, reviewCount: e.target.value })}
-                        className="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none" />
-                    </div>
-                  </div>
-
-                  <div className="border-t border-stone-200 pt-4">
-                    <label className="block text-stone-800 font-bold mb-2 text-sm">Admin Şifresini Değiştir</label>
-                    <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4">
-                      <Lock className="text-stone-400 mr-2" size={16} />
-                      <input type={adminPassVisible ? "text" : "password"} value={newAdminPass}
-                        onChange={(e) => setNewAdminPass(e.target.value)}
-                        placeholder="Yeni şifre (boş bırakılırsa değişmez)"
-                        className="w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm" />
-                      <button type="button" onClick={() => setAdminPassVisible((v) => !v)} className="text-stone-400">
-                        {adminPassVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <button onClick={saveSettings} className="w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-3.5 shadow-lg">
-                    Ayarları Kaydet
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {confirmDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6">
-          <div className="bg-white rounded-2xl p-5 max-w-sm w-full shadow-2xl">
-            <p className="text-stone-800 font-medium mb-5">{confirmDialog.message}</p>
-            <div className="flex gap-2">
-              <button onClick={() => setConfirmDialog(null)}
-                className="flex-1 bg-stone-100 text-stone-700 font-semibold rounded-xl py-2.5">
-                Vazgeç
-              </button>
-              <button
-                onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
-                className="flex-1 bg-rose-600 text-white font-semibold rounded-xl py-2.5">
-                Evet, Sil
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return /* @__PURE__ */ React.createElement("div", { className: "min-h-screen relative overflow-x-hidden", style: { background: "linear-gradient(180deg,#8a8a86 0%,#5b5a56 35%,#2c2b29 75%,#1a1918 100%)" } }, /* @__PURE__ */ React.createElement("div", { className: "pointer-events-none absolute inset-0 overflow-hidden opacity-50" }, /* @__PURE__ */ React.createElement("div", { className: "absolute -top-24 -left-16 w-96 h-96 bg-stone-400 rounded-full blur-3xl" }), /* @__PURE__ */ React.createElement("div", { className: "absolute top-32 right-0 w-80 h-80 bg-stone-600 rounded-full blur-3xl" }), /* @__PURE__ */ React.createElement("div", { className: "absolute bottom-0 left-1/4 w-96 h-96 bg-black rounded-full blur-3xl" })), /* @__PURE__ */ React.createElement("div", { className: "relative z-10 flex justify-between items-center px-6 pt-6 max-w-md mx-auto" }, /* @__PURE__ */ React.createElement("div", null, view === "booking" && /* @__PURE__ */ React.createElement("button", { onClick: handleLogout, className: "flex items-center gap-1 text-sm font-semibold text-stone-200 bg-white/10 rounded-full px-4 py-2" }, /* @__PURE__ */ React.createElement(LogOut, { size: 15 }), " \xC7\u0131k\u0131\u015F"), view === "admin" && /* @__PURE__ */ React.createElement("button", { onClick: () => setView("login"), className: "flex items-center gap-1 text-sm font-semibold text-stone-200 bg-white/10 rounded-full px-4 py-2" }, /* @__PURE__ */ React.createElement(ArrowLeft, { size: 15 }), " Ana Sayfa")), view === "login" && /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      onClick: () => setView("adminLogin"),
+      className: "bg-white text-stone-900 font-bold rounded-2xl px-5 py-2.5 shadow-lg text-sm"
+    },
+    "Admin Giri\u015Fi"
+  ), view === "admin" && /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    setView("login");
+  }, className: "flex items-center gap-1 text-sm font-semibold text-white bg-stone-900/60 rounded-full px-4 py-2" }, /* @__PURE__ */ React.createElement(LogOut, { size: 15 }), " \xC7\u0131k\u0131\u015F Yap")), view !== "admin" && view !== "adminLogin" && /* @__PURE__ */ React.createElement("div", { className: "relative z-10 flex justify-center mt-2" }, /* @__PURE__ */ React.createElement(
+    "img",
+    {
+      src: LOGO_DATA_URI,
+      alt: `${config.business.name} logo`,
+      className: "w-36 h-36 rounded-full shadow-2xl object-contain"
+    }
+  )), /* @__PURE__ */ React.createElement("div", { className: "relative z-10 max-w-md mx-auto px-5 pb-16" }, view !== "admin" && view !== "adminLogin" && /* @__PURE__ */ React.createElement("div", { className: "text-center mt-4 mb-6" }, /* @__PURE__ */ React.createElement("h1", { className: "text-4xl font-extrabold text-white tracking-tight uppercase" }, config.business.name), /* @__PURE__ */ React.createElement("p", { className: "text-stone-300 tracking-widest text-sm mt-1 uppercase" }, config.business.subtitle), /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-center gap-1.5 mt-3" }, /* @__PURE__ */ React.createElement(Star, { className: "text-amber-400 fill-amber-400", size: 18 }), /* @__PURE__ */ React.createElement("span", { className: "text-amber-300 font-semibold" }, config.business.rating, " (", config.business.reviewCount, ")"))), toast && /* @__PURE__ */ React.createElement("div", { className: `mb-4 rounded-xl px-4 py-3 text-sm font-medium border ${toast.type === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"}` }, toast.text), view === "login" && /* @__PURE__ */ React.createElement("div", { className: "bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-6" }, /* @__PURE__ */ React.createElement("h2", { className: "text-stone-900 font-bold text-lg mb-1" }, "M\xFC\u015Fteri Giri\u015Fi"), /* @__PURE__ */ React.createElement("p", { className: "text-stone-500 text-sm mb-5" }, "Randevu almak i\xE7in ad\u0131n\u0131z\u0131 ve telefon numaran\u0131z\u0131 girin."), /* @__PURE__ */ React.createElement("form", { onSubmit: handleLogin, className: "space-y-4" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Ad Soyad"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4" }, /* @__PURE__ */ React.createElement(User, { className: "text-stone-400 mr-2", size: 18 }), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      value: loginName,
+      onChange: (e) => setLoginName(e.target.value),
+      placeholder: "Ad\u0131n\u0131z ve Soyad\u0131n\u0131z",
+      className: "w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none"
+    }
+  ))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Telefon"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4" }, /* @__PURE__ */ React.createElement(Phone, { className: "text-stone-400 mr-2", size: 18 }), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      value: loginPhone,
+      onChange: (e) => setLoginPhone(e.target.value),
+      placeholder: "05xxxxxxxxx",
+      className: "w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none"
+    }
+  ))), /* @__PURE__ */ React.createElement("button", { type: "submit", className: "w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-4 shadow-lg tracking-wide" }, "G\u0130R\u0130\u015E YAP"), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-stone-400 text-center" }, "Kay\u0131tl\u0131 de\u011Filseniz otomatik olarak hesab\u0131n\u0131z olu\u015Fturulur."))), view === "booking" && currentCustomer && /* @__PURE__ */ React.createElement("div", { className: "bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-6" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between mb-5" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("p", { className: "text-stone-500 text-xs" }, "Merhaba,"), /* @__PURE__ */ React.createElement("p", { className: "text-stone-900 font-bold" }, currentCustomer.name)), /* @__PURE__ */ React.createElement("div", { className: "flex bg-stone-100 rounded-full p-1" }, /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      onClick: () => setCustomerTab("book"),
+      className: `px-4 py-1.5 rounded-full text-sm font-semibold ${customerTab === "book" ? "bg-stone-900 text-white" : "text-stone-500"}`
+    },
+    "Randevu Al"
+  ), /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      onClick: () => setCustomerTab("mine"),
+      className: `px-4 py-1.5 rounded-full text-sm font-semibold ${customerTab === "mine" ? "bg-stone-900 text-white" : "text-stone-500"}`
+    },
+    "Randevular\u0131m"
+  ))), customerTab === "book" && /* @__PURE__ */ React.createElement("form", { onSubmit: handleBook, className: "space-y-5" }, /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Ad Soyad"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center bg-stone-100 border border-stone-200 rounded-xl px-3" }, /* @__PURE__ */ React.createElement(User, { className: "text-stone-400 mr-1.5", size: 16 }), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      value: bookName,
+      onChange: (e) => setBookName(e.target.value),
+      placeholder: "Ad\u0131n\u0131z ve Soyad\u0131n\u0131z",
+      className: "w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm"
+    }
+  ))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Telefon"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center bg-stone-100 border border-stone-200 rounded-xl px-3" }, /* @__PURE__ */ React.createElement(Phone, { className: "text-stone-400 mr-1.5", size: 16 }), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      value: bookPhone,
+      onChange: (e) => setBookPhone(e.target.value),
+      placeholder: "05xxxxxxxxx",
+      className: "w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm"
+    }
+  )))), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Berber Se\xE7imi"), /* @__PURE__ */ React.createElement(
+    "select",
+    {
+      value: barberId,
+      onChange: (e) => {
+        setBarberId(e.target.value);
+        setTime(null);
+      },
+      className: "w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-3 text-stone-800 outline-none"
+    },
+    /* @__PURE__ */ React.createElement("option", { value: "" }, "Se\xE7iniz"),
+    config.barbers.map((b) => /* @__PURE__ */ React.createElement("option", { key: b.id, value: b.id }, b.name))
+  )), /* @__PURE__ */ React.createElement("div", { className: "relative" }, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "\u0130\u015Flem Se\xE7imi"), /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      type: "button",
+      onClick: () => setServiceMenuOpen((v) => !v),
+      className: "w-full flex items-center justify-between bg-white border border-stone-300 rounded-xl px-3 py-3 text-stone-800 font-medium"
+    },
+    /* @__PURE__ */ React.createElement("span", null, serviceIds.length ? `${serviceIds.length} se\xE7ildi` : "Se\xE7iniz"),
+    /* @__PURE__ */ React.createElement(ChevronDown, { size: 16 })
+  ), serviceMenuOpen && /* @__PURE__ */ React.createElement("div", { className: "absolute z-20 mt-1 w-full bg-white border border-stone-200 rounded-xl shadow-xl p-2 max-h-56 overflow-y-auto" }, config.services.map((s) => /* @__PURE__ */ React.createElement("label", { key: s.id, className: "flex items-center justify-between gap-2 px-2 py-2 rounded-lg hover:bg-stone-50 cursor-pointer" }, /* @__PURE__ */ React.createElement("span", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("input", { type: "checkbox", checked: serviceIds.includes(s.id), onChange: () => {
+    toggleService(s.id);
+    setTime(null);
+  } }), /* @__PURE__ */ React.createElement("span", { className: "text-sm text-stone-700" }, s.name)), /* @__PURE__ */ React.createElement("span", { className: "text-xs text-stone-400" }, s.duration, "dk \xB7 ", s.price, "\u20BA")))))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Tarih"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4" }, /* @__PURE__ */ React.createElement(Calendar, { className: "text-stone-400 mr-2", size: 18 }), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      type: "date",
+      min: todayISO(),
+      value: date,
+      onChange: (e) => {
+        setDate(e.target.value);
+        setTime(null);
+      },
+      className: "w-full bg-transparent py-3 text-stone-800 outline-none"
+    }
+  )), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-stone-400 mt-1" }, dateLabel(date))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Saat Se\xE7imi"), !barberId || serviceIds.length === 0 ? /* @__PURE__ */ React.createElement("p", { className: "text-stone-400 text-sm" }, "L\xFCtfen bir berber ve i\u015Flem se\xE7in.") : slotInfo.closedDay ? /* @__PURE__ */ React.createElement("p", { className: "text-stone-400 text-sm" }, "Se\xE7ilen berber bu g\xFCn \xE7al\u0131\u015Fm\u0131yor. L\xFCtfen ba\u015Fka bir tarih se\xE7in.") : availableSlots.length === 0 ? /* @__PURE__ */ React.createElement("p", { className: "text-stone-400 text-sm" }, "Bu tarihte uygun saat bulunmuyor.") : /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-4 gap-2" }, availableSlots.map((m) => /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      key: m,
+      type: "button",
+      onClick: () => setTime(m),
+      className: `text-sm font-semibold rounded-lg py-2 border ${time === m ? "bg-stone-900 text-white border-stone-900" : "bg-stone-50 text-stone-700 border-stone-200"}`
+    },
+    toLabel(m)
+  )))), selectedServices.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-sm bg-stone-50 rounded-xl px-4 py-3 border border-stone-100" }, /* @__PURE__ */ React.createElement("span", { className: "text-stone-500" }, "Toplam: ", totalDuration, " dk"), /* @__PURE__ */ React.createElement("span", { className: "font-bold text-stone-800" }, totalPrice, "\u20BA")), /* @__PURE__ */ React.createElement("button", { type: "submit", className: "w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-4 shadow-lg tracking-wide" }, "RANDEVU AL")), customerTab === "mine" && /* @__PURE__ */ React.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-end" }, /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-1.5 text-xs text-stone-400 font-medium" }, /* @__PURE__ */ React.createElement("input", { type: "checkbox", checked: showPastMine, onChange: (e) => setShowPastMine(e.target.checked) }), "Ge\xE7mi\u015F randevular\u0131 g\xF6ster")), myAppointments.length === 0 && /* @__PURE__ */ React.createElement("p", { className: "text-stone-400 text-sm text-center py-6" }, showPastMine ? "Randevunuz yok." : "Yakla\u015Fan randevunuz yok."), myAppointments.map((a) => /* @__PURE__ */ React.createElement("div", { key: a.id, className: "border border-stone-200 rounded-xl p-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-start mb-1" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("p", { className: "font-bold text-stone-900" }, dateLabel(a.date), " \xB7 ", toLabel(a.startMinutes)), /* @__PURE__ */ React.createElement("p", { className: "text-sm text-stone-500" }, barberName(a.barberId), " \u2014 ", serviceNames(a.serviceIds))), /* @__PURE__ */ React.createElement("span", { className: `text-xs font-semibold border rounded-full px-2 py-1 ${statusStyles[a.status]}` }, statusLabels[a.status])), a.status === "pending" && /* @__PURE__ */ React.createElement("button", { onClick: () => cancelOwnAppointment(a.id), className: "text-xs font-semibold text-rose-600 mt-2" }, "Randevuyu \u0130ptal Et"))))), view === "adminLogin" && /* @__PURE__ */ React.createElement("div", { className: "bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-6 mt-24" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2 mb-1" }, /* @__PURE__ */ React.createElement(Lock, { className: "text-stone-800", size: 20 }), /* @__PURE__ */ React.createElement("h2", { className: "text-stone-900 font-bold text-lg" }, "Admin Giri\u015Fi")), /* @__PURE__ */ React.createElement("p", { className: "text-stone-500 text-sm mb-5" }, "Y\xF6netim paneline eri\u015Fmek i\xE7in \u015Fifrenizi girin."), /* @__PURE__ */ React.createElement("form", { onSubmit: handleAdminLogin, className: "space-y-4" }, /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      type: "password",
+      value: adminPass,
+      onChange: (e) => setAdminPass(e.target.value),
+      placeholder: "\u015Eifre",
+      className: "w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none"
+    }
+  ), adminError && /* @__PURE__ */ React.createElement("p", { className: "text-rose-600 text-sm" }, adminError), /* @__PURE__ */ React.createElement("button", { type: "submit", className: "w-full bg-stone-900 text-white font-bold rounded-xl py-3.5" }, "Giri\u015F Yap"), /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => setView("login"), className: "w-full text-stone-500 text-sm py-1" }, "Vazge\xE7"))), view === "admin" && /* @__PURE__ */ React.createElement("div", { className: "mt-6" }, /* @__PURE__ */ React.createElement("div", { className: "relative mb-4" }, /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      type: "button",
+      onClick: () => setAdminMenuOpen((v) => !v),
+      className: "w-full flex items-center justify-between bg-white/95 backdrop-blur rounded-2xl px-4 py-3.5 shadow-lg border border-white/40"
+    },
+    /* @__PURE__ */ React.createElement("span", { className: "flex items-center gap-2 font-bold text-stone-900" }, (() => {
+      const current = ADMIN_TABS.find((t) => t.id === adminTab) || ADMIN_TABS[0];
+      const Icon2 = current.icon;
+      return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Icon2, { size: 17, className: "text-amber-600" }), " ", current.label);
+    })()),
+    /* @__PURE__ */ React.createElement(ChevronDown, { size: 18, className: `text-stone-500 transition-transform ${adminMenuOpen ? "rotate-180" : ""}` })
+  ), adminMenuOpen && /* @__PURE__ */ React.createElement("div", { className: "absolute z-20 mt-1.5 w-full bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden" }, ADMIN_TABS.map((t) => /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      key: t.id,
+      type: "button",
+      onClick: () => {
+        setAdminTab(t.id);
+        setAdminMenuOpen(false);
+      },
+      className: `w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-left ${adminTab === t.id ? "bg-amber-50 text-amber-700" : "text-stone-700"}`
+    },
+    /* @__PURE__ */ React.createElement(t.icon, { size: 16 }),
+    " ",
+    t.label
+  )))), /* @__PURE__ */ React.createElement("div", { className: "bg-stone-100/90 backdrop-blur rounded-3xl shadow-2xl border border-white/30 p-5" }, adminTab === "dashboard" && /* @__PURE__ */ React.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ React.createElement("h2", { className: "text-stone-900 font-bold text-lg" }, "Genel Bak\u0131\u015F"), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ React.createElement("div", { className: "bg-stone-50 rounded-xl p-4 border border-stone-100" }, /* @__PURE__ */ React.createElement("p", { className: "text-stone-400 text-xs" }, "Toplam Randevu"), /* @__PURE__ */ React.createElement("p", { className: "text-2xl font-extrabold text-stone-900" }, appointments.length)), /* @__PURE__ */ React.createElement("div", { className: "bg-amber-50 rounded-xl p-4 border border-amber-100" }, /* @__PURE__ */ React.createElement("p", { className: "text-amber-600 text-xs" }, "Bekleyen"), /* @__PURE__ */ React.createElement("p", { className: "text-2xl font-extrabold text-amber-700" }, appointments.filter((a) => a.status === "pending").length)), /* @__PURE__ */ React.createElement("div", { className: "bg-emerald-50 rounded-xl p-4 border border-emerald-100" }, /* @__PURE__ */ React.createElement("p", { className: "text-emerald-600 text-xs" }, "Onaylanan"), /* @__PURE__ */ React.createElement("p", { className: "text-2xl font-extrabold text-emerald-700" }, appointments.filter((a) => a.status === "confirmed").length)), /* @__PURE__ */ React.createElement("button", { onClick: () => setAdminTab("customers"), className: "bg-stone-50 rounded-xl p-4 border border-stone-100 text-left" }, /* @__PURE__ */ React.createElement("p", { className: "text-stone-400 text-xs" }, "Randevu Alan M\xFC\u015Fteri"), /* @__PURE__ */ React.createElement("p", { className: "text-2xl font-extrabold text-stone-900" }, customersWithStats.length)))), adminTab === "customers" && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-stone-900 font-bold text-lg mb-3" }, "M\xFC\u015Fteriler"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center bg-stone-100 border border-stone-200 rounded-xl px-3 mb-4" }, /* @__PURE__ */ React.createElement(Search, { className: "text-stone-400 mr-1.5", size: 16 }), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      value: customerSearch,
+      onChange: (e) => setCustomerSearch(e.target.value),
+      placeholder: "\u0130sim veya telefon ile ara",
+      className: "w-full bg-transparent py-2.5 text-stone-800 placeholder-stone-400 outline-none text-sm"
+    }
+  )), /* @__PURE__ */ React.createElement("div", { className: "space-y-2 max-h-[30rem] overflow-y-auto" }, customersWithStats.length === 0 && /* @__PURE__ */ React.createElement("p", { className: "text-stone-400 text-sm text-center py-6" }, customerSearch ? "E\u015Fle\u015Fen m\xFC\u015Fteri bulunamad\u0131." : "Hen\xFCz randevu olu\u015Fturan m\xFC\u015Fteri yok."), customersWithStats.map((c) => {
+    const isOpen = expandedCustomerId === c.id;
+    return /* @__PURE__ */ React.createElement("div", { key: c.id, className: "border border-stone-200 rounded-xl overflow-hidden" }, /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setExpandedCustomerId(isOpen ? null : c.id),
+        className: "w-full flex items-center justify-between px-4 py-3 text-left"
+      },
+      /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("p", { className: "font-bold text-stone-900" }, c.name), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-stone-500" }, c.phone)),
+      /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ React.createElement("div", { className: "text-right" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs text-stone-400" }, c.count, " randevu"), /* @__PURE__ */ React.createElement("p", { className: "text-[11px] text-stone-400" }, "Son: ", dateLabel(c.lastAppt.date))), /* @__PURE__ */ React.createElement(ChevronDown, { size: 16, className: `text-stone-400 transition-transform ${isOpen ? "rotate-180" : ""}` }))
+    ), isOpen && /* @__PURE__ */ React.createElement("div", { className: "border-t border-stone-100 bg-stone-50 px-4 py-3 space-y-2" }, c.appts.map((a) => /* @__PURE__ */ React.createElement("div", { key: a.id, className: "flex items-center justify-between text-sm" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("p", { className: "text-stone-700 font-medium" }, dateLabel(a.date), " \xB7 ", toLabel(a.startMinutes)), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-stone-400" }, barberName(a.barberId), " \u2014 ", serviceNames(a.serviceIds))), /* @__PURE__ */ React.createElement("span", { className: `text-[11px] font-semibold border rounded-full px-2 py-0.5 ${statusStyles[a.status]}` }, statusLabels[a.status])))));
+  }))), adminTab === "appointments" && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-stone-900 font-bold text-lg mb-3" }, "Randevular"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2 mb-3" }, /* @__PURE__ */ React.createElement(
+    "select",
+    {
+      value: apptFilterBarber,
+      onChange: (e) => setApptFilterBarber(e.target.value),
+      className: "flex-1 bg-stone-100 border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700"
+    },
+    /* @__PURE__ */ React.createElement("option", { value: "" }, "T\xFCm Berberler"),
+    config.barbers.map((b) => /* @__PURE__ */ React.createElement("option", { key: b.id, value: b.id }, b.name))
+  ), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      type: "date",
+      value: apptFilterDate,
+      onChange: (e) => setApptFilterDate(e.target.value),
+      className: "flex-1 bg-stone-100 border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700"
+    }
+  )), (apptFilterDate || apptFilterBarber) && /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    setApptFilterDate("");
+    setApptFilterBarber("");
+  }, className: "text-xs text-stone-400 mb-3 underline" }, "Filtreleri temizle"), /* @__PURE__ */ React.createElement("div", { className: "flex justify-end mb-2" }, /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-1.5 text-xs text-stone-400 font-medium" }, /* @__PURE__ */ React.createElement("input", { type: "checkbox", checked: showPastAdmin, onChange: (e) => setShowPastAdmin(e.target.checked) }), "Ge\xE7mi\u015F randevular\u0131 g\xF6ster")), /* @__PURE__ */ React.createElement("div", { className: "space-y-3 max-h-[28rem] overflow-y-auto" }, sortedAdminAppts.length === 0 && /* @__PURE__ */ React.createElement("p", { className: "text-stone-400 text-sm text-center py-6" }, "Randevu bulunmuyor."), sortedAdminAppts.map((a) => /* @__PURE__ */ React.createElement("div", { key: a.id, className: "border border-stone-200 rounded-xl p-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between items-start" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("p", { className: "font-bold text-stone-900" }, a.customerName, " ", /* @__PURE__ */ React.createElement("span", { className: "text-stone-400 font-normal" }, "\xB7 ", a.phone)), /* @__PURE__ */ React.createElement("p", { className: "text-sm text-stone-600" }, dateLabel(a.date), " \xB7 ", toLabel(a.startMinutes), " (", a.durationMinutes, " dk)"), /* @__PURE__ */ React.createElement("p", { className: "text-sm text-stone-500" }, barberName(a.barberId), " \u2014 ", serviceNames(a.serviceIds))), /* @__PURE__ */ React.createElement("span", { className: `text-xs font-semibold border rounded-full px-2 py-1 ${statusStyles[a.status]}` }, statusLabels[a.status])), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2 mt-3" }, a.status !== "confirmed" && /* @__PURE__ */ React.createElement("button", { onClick: () => setApptStatus(a.id, "confirmed"), className: "flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full px-3 py-1.5" }, /* @__PURE__ */ React.createElement(BadgeCheck, { size: 14 }), " Onayla"), a.status !== "cancelled" && /* @__PURE__ */ React.createElement("button", { onClick: () => setApptStatus(a.id, "cancelled"), className: "flex items-center gap-1 text-xs font-semibold text-rose-700 bg-rose-50 rounded-full px-3 py-1.5" }, /* @__PURE__ */ React.createElement(Ban, { size: 14 }), " \u0130ptal Et"), /* @__PURE__ */ React.createElement("button", { onClick: () => askConfirm("Bu randevuyu kal\u0131c\u0131 olarak silmek istedi\u011Finize emin misiniz?", () => deleteAppt(a.id)), className: "flex items-center gap-1 text-xs font-semibold text-stone-500 bg-stone-100 rounded-full px-3 py-1.5 ml-auto" }, /* @__PURE__ */ React.createElement(Trash2, { size: 14 }), " Sil")))))), adminTab === "barbers" && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-stone-900 font-bold text-lg mb-3" }, "Berberler"), /* @__PURE__ */ React.createElement("div", { className: "space-y-3 mb-4" }, config.barbers.map((b) => {
+    var _a, _b, _c, _d;
+    return /* @__PURE__ */ React.createElement("div", { key: b.id, className: "border border-stone-200 rounded-xl p-3" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ React.createElement("span", { className: "text-stone-900 font-bold text-sm" }, b.name), /* @__PURE__ */ React.createElement("button", { onClick: () => askConfirm(`${b.name} silinsin mi? Bu berbere ait randevu ge\xE7mi\u015Fi kal\u0131r ancak yeni randevu al\u0131namaz.`, () => removeBarber(b.id)), className: "text-rose-500" }, /* @__PURE__ */ React.createElement(Trash2, { size: 14 }))), /* @__PURE__ */ React.createElement("p", { className: "text-[11px] font-semibold text-stone-500 mb-1" }, "\xC7al\u0131\u015Fma G\xFCnleri"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1 mb-2 flex-wrap" }, WEEKDAYS.map((d) => {
+      var _a2;
+      const active = ((_a2 = b.workDays) != null ? _a2 : [1, 2, 3, 4, 5, 6]).includes(d.id);
+      return /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          key: d.id,
+          type: "button",
+          onClick: () => toggleBarberWorkDay(b.id, d.id),
+          className: `text-[11px] font-semibold rounded-md px-2 py-1 border ${active ? "bg-stone-900 text-white border-stone-900" : "bg-stone-50 text-stone-400 border-stone-200"}`
+        },
+        d.short
+      );
+    })), /* @__PURE__ */ React.createElement("p", { className: "text-[11px] font-semibold text-stone-500 mb-1" }, "\xC7al\u0131\u015Fma Saatleri"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-1.5 mb-2" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-1 bg-stone-100 rounded-md px-2 py-1" }, /* @__PURE__ */ React.createElement(Clock, { size: 12, className: "text-stone-400" }), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "time",
+        value: toLabel((_a = b.workStart) != null ? _a : OPEN_MIN),
+        onChange: (e) => updateBarberHours(b.id, "workStart", e.target.value),
+        className: "bg-transparent text-xs text-stone-800 outline-none"
+      }
+    )), /* @__PURE__ */ React.createElement("span", { className: "text-stone-400 text-xs" }, "\u2014"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-1 bg-stone-100 rounded-md px-2 py-1" }, /* @__PURE__ */ React.createElement(Clock, { size: 12, className: "text-stone-400" }), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "time",
+        value: toLabel((_b = b.workEnd) != null ? _b : CLOSE_MIN),
+        onChange: (e) => updateBarberHours(b.id, "workEnd", e.target.value),
+        className: "bg-transparent text-xs text-stone-800 outline-none"
+      }
+    ))), /* @__PURE__ */ React.createElement("p", { className: "text-[11px] font-semibold text-stone-500 mb-1" }, "Molalar"), /* @__PURE__ */ React.createElement("div", { className: "space-y-1 mb-1.5" }, (b.breaks || []).length === 0 && /* @__PURE__ */ React.createElement("p", { className: "text-[11px] text-stone-400" }, "Tan\u0131ml\u0131 mola yok."), (b.breaks || []).map((br, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "flex items-center justify-between bg-amber-50 border border-amber-100 rounded-md px-2 py-1" }, /* @__PURE__ */ React.createElement("span", { className: "text-[11px] font-semibold text-amber-800" }, toLabel(br.start), " \u2013 ", toLabel(br.end)), /* @__PURE__ */ React.createElement("button", { onClick: () => removeBarberBreak(b.id, i), className: "text-rose-500" }, /* @__PURE__ */ React.createElement(X, { size: 12 }))))), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-1.5" }, /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "time",
+        value: ((_c = breakDrafts[b.id]) == null ? void 0 : _c.start) || "",
+        onChange: (e) => setBreakDrafts(__spreadProps(__spreadValues({}, breakDrafts), { [b.id]: __spreadProps(__spreadValues({}, breakDrafts[b.id]), { start: e.target.value }) })),
+        className: "flex-1 bg-stone-100 border border-stone-200 rounded-md px-1.5 py-1 text-[11px] text-stone-800 outline-none"
+      }
+    ), /* @__PURE__ */ React.createElement("span", { className: "text-stone-400 text-[11px]" }, "\u2014"), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "time",
+        value: ((_d = breakDrafts[b.id]) == null ? void 0 : _d.end) || "",
+        onChange: (e) => setBreakDrafts(__spreadProps(__spreadValues({}, breakDrafts), { [b.id]: __spreadProps(__spreadValues({}, breakDrafts[b.id]), { end: e.target.value }) })),
+        className: "flex-1 bg-stone-100 border border-stone-200 rounded-md px-1.5 py-1 text-[11px] text-stone-800 outline-none"
+      }
+    ), /* @__PURE__ */ React.createElement("button", { onClick: () => addBarberBreak(b.id), className: "bg-stone-900 text-white rounded-md px-2 py-1" }, /* @__PURE__ */ React.createElement(Plus, { size: 12 }))));
+  })), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      value: newBarberName,
+      onChange: (e) => setNewBarberName(e.target.value),
+      placeholder: "Yeni berber ad\u0131",
+      className: "flex-1 bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none"
+    }
+  ), /* @__PURE__ */ React.createElement("button", { onClick: addBarber, className: "bg-stone-900 text-white rounded-xl px-4 flex items-center" }, /* @__PURE__ */ React.createElement(Plus, { size: 18 })))), adminTab === "services" && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-stone-900 font-bold text-lg mb-4" }, "Hizmetler"), /* @__PURE__ */ React.createElement("div", { className: "space-y-2 mb-4" }, config.services.map((s) => /* @__PURE__ */ React.createElement("div", { key: s.id, className: "flex items-center justify-between border border-stone-200 rounded-xl px-4 py-3" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("p", { className: "text-stone-800 font-medium" }, s.name), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-stone-400" }, s.duration, " dk \xB7 ", s.price, "\u20BA")), /* @__PURE__ */ React.createElement("button", { onClick: () => askConfirm(`${s.name} hizmeti silinsin mi?`, () => removeService(s.id)), className: "text-rose-500" }, /* @__PURE__ */ React.createElement(Trash2, { size: 16 }))))), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-3 gap-2 mb-2" }, /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      value: newService.name,
+      onChange: (e) => setNewService(__spreadProps(__spreadValues({}, newService), { name: e.target.value })),
+      placeholder: "Hizmet ad\u0131",
+      className: "col-span-3 bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5 text-stone-800 outline-none text-sm"
+    }
+  ), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      type: "number",
+      value: newService.duration,
+      onChange: (e) => setNewService(__spreadProps(__spreadValues({}, newService), { duration: e.target.value })),
+      placeholder: "Dakika",
+      className: "bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5 text-stone-800 outline-none text-sm"
+    }
+  ), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      type: "number",
+      value: newService.price,
+      onChange: (e) => setNewService(__spreadProps(__spreadValues({}, newService), { price: e.target.value })),
+      placeholder: "Fiyat \u20BA",
+      className: "bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5 text-stone-800 outline-none text-sm"
+    }
+  ), /* @__PURE__ */ React.createElement("button", { onClick: addService, className: "bg-stone-900 text-white rounded-xl flex items-center justify-center" }, /* @__PURE__ */ React.createElement(Plus, { size: 18 })))), adminTab === "settings" && settingsDraft && /* @__PURE__ */ React.createElement("div", { className: "space-y-5" }, /* @__PURE__ */ React.createElement("h2", { className: "text-stone-900 font-bold text-lg" }, "\u0130\u015Fletme Ayarlar\u0131"), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "\u0130\u015Fletme Ad\u0131"), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      value: settingsDraft.name,
+      onChange: (e) => setSettingsDraft(__spreadProps(__spreadValues({}, settingsDraft), { name: e.target.value })),
+      className: "w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none"
+    }
+  )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Alt Ba\u015Fl\u0131k"), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      value: settingsDraft.subtitle,
+      onChange: (e) => setSettingsDraft(__spreadProps(__spreadValues({}, settingsDraft), { subtitle: e.target.value })),
+      className: "w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none"
+    }
+  )), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Puan"), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      type: "number",
+      step: "0.1",
+      min: "0",
+      max: "5",
+      value: settingsDraft.rating,
+      onChange: (e) => setSettingsDraft(__spreadProps(__spreadValues({}, settingsDraft), { rating: e.target.value })),
+      className: "w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none"
+    }
+  )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "De\u011Ferlendirme Say\u0131s\u0131"), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      type: "number",
+      min: "0",
+      value: settingsDraft.reviewCount,
+      onChange: (e) => setSettingsDraft(__spreadProps(__spreadValues({}, settingsDraft), { reviewCount: e.target.value })),
+      className: "w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none"
+    }
+  ))), /* @__PURE__ */ React.createElement("div", { className: "border-t border-stone-200 pt-4" }, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Admin \u015Eifresini De\u011Fi\u015Ftir"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center bg-stone-100 border border-stone-200 rounded-xl px-4" }, /* @__PURE__ */ React.createElement(Lock, { className: "text-stone-400 mr-2", size: 16 }), /* @__PURE__ */ React.createElement(
+    "input",
+    {
+      type: adminPassVisible ? "text" : "password",
+      value: newAdminPass,
+      onChange: (e) => setNewAdminPass(e.target.value),
+      placeholder: "Yeni \u015Fifre (bo\u015F b\u0131rak\u0131l\u0131rsa de\u011Fi\u015Fmez)",
+      className: "w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm"
+    }
+  ), /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => setAdminPassVisible((v) => !v), className: "text-stone-400" }, adminPassVisible ? /* @__PURE__ */ React.createElement(EyeOff, { size: 16 }) : /* @__PURE__ */ React.createElement(Eye, { size: 16 })))), /* @__PURE__ */ React.createElement("button", { onClick: saveSettings, className: "w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-3.5 shadow-lg" }, "Ayarlar\u0131 Kaydet"))))), confirmDialog && /* @__PURE__ */ React.createElement("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6" }, /* @__PURE__ */ React.createElement("div", { className: "bg-white rounded-2xl p-5 max-w-sm w-full shadow-2xl" }, /* @__PURE__ */ React.createElement("p", { className: "text-stone-800 font-medium mb-5" }, confirmDialog.message), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      onClick: () => setConfirmDialog(null),
+      className: "flex-1 bg-stone-100 text-stone-700 font-semibold rounded-xl py-2.5"
+    },
+    "Vazge\xE7"
+  ), /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      onClick: () => {
+        confirmDialog.onConfirm();
+        setConfirmDialog(null);
+      },
+      className: "flex-1 bg-rose-600 text-white font-semibold rounded-xl py-2.5"
+    },
+    "Evet, Sil"
+  )))));
 }
-
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<BerberRandevuSistemi />);
+try {
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(/* @__PURE__ */ React.createElement(BerberRandevuSistemi, null));
+} catch (e) {
+  window.__showBootError && window.__showBootError(e.message || String(e));
+}
 
 </script>
 </body>
