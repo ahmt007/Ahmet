@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Randevu İçe Aktarma Aracı</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  body { font-family: -apple-system, sans-serif; background:#1c1917; color:#e7e5e4; padding:24px; max-width:520px; margin:0 auto; }
+  h1 { font-size:18px; }
+  button { background:linear-gradient(135deg,#fbbf24,#92400e); color:#fff; font-weight:700; border:none;
+    padding:14px 20px; border-radius:12px; font-size:15px; width:100%; margin-top:16px; }
+  button:disabled { opacity: .5; }
+  #log { margin-top:20px; font-size:13px; line-height:1.6; white-space:pre-wrap; background:#292524; padding:14px; border-radius:10px; }
+  li { margin-bottom:4px; }
+</style>
+</head>
+<body>
+<h1>Ahmet Tekeli — Randevu İçe Aktarma Aracı</h1>
+<p style="color:#a8a29e; font-size:14px;">Bu araç, verilen listedeki randevuları doğrudan canlı veritabanına ekler. Sadece <b>bir kez</b> çalıştır. Tekrar açarsan zaten eklenmiş randevuları tekrar eklemez.</p>
+<button id="runBtn">Randevuları İçe Aktar</button>
+<div id="log"></div>
+
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyDlWAiOEvyP-bVPwjPBVxT6MMfRdFrG3g0",
+  authDomain: "berberim2-fff64.firebaseapp.com",
+  projectId: "berberim2-fff64",
+  storageBucket: "berberim2-fff64.firebasestorage.app",
+  messagingSenderId: "1009883427797",
+  appId: "1:1009883427797:web:8b68a4e5afb9a5738ec35c",
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+var BATCH_ID = "batch-2026-07-20-v1";
+var DATE = "2026-07-20";
+
+var NEW_APPTS = [
+  { time: "11:00", name: "Mahir Duman",     service: "Saç + Sakal", barber: "Efe KARA" },
+  { time: "12:00", name: "Delikan Sözer",   service: "Saç + Sakal", barber: "Emre ŞORBA" },
+  { time: "14:00", name: "Gökhan Çelimli",  service: "Saç Kesimi",  barber: "Ahmet TEKELİ" },
+  { time: "14:30", name: "Emlak Mehmet",    service: "Saç + Sakal", barber: "Ahmet TEKELİ" },
+  { time: "16:00", name: "Ömer Bilgin",     service: "Saç + Sakal", barber: "Ahmet TEKELİ" },
+  { time: "17:30", name: "Çağlar",          service: "Saç + Sakal", barber: "Ahmet TEKELİ" },
+  { time: "19:00", name: "Baran Domaç",     service: "Saç + Sakal", barber: "Ahmet TEKELİ" },
+];
+
+function timeToMinutes(t) {
+  var parts = t.split(":");
+  return Number(parts[0]) * 60 + Number(parts[1]);
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+function log(msg) {
+  document.getElementById("log").textContent += msg + "\n";
+}
+
+function getDoc(key) {
+  return db.collection("berberRandevu").doc(key).get().then(function (snap) {
+    return snap.exists ? JSON.parse(snap.data().value) : null;
+  });
+}
+function setDoc(key, value) {
+  return db.collection("berberRandevu").doc(key).set({ value: JSON.stringify(value) });
+}
+
+function runImport() {
+  var btn = document.getElementById("runBtn");
+  btn.disabled = true;
+  document.getElementById("log").textContent = "";
+
+  getDoc(BATCH_ID).then(function (already) {
+    if (already) {
+      log("⚠️ Bu randevu grubu daha önce eklenmiş. Tekrar eklenmedi.");
+      btn.disabled = false;
+      return;
+    }
+
+    log("Mevcut veriler okunuyor...");
+    var config, appointments, customers;
+
+    Promise.all([getDoc("shop-config"), getDoc("appointments"), getDoc("customers")])
+      .then(function (results) {
+        config = results[0];
+        appointments = results[1] || [];
+        customers = results[2] || [];
+
+        if (!config) throw new Error("shop-config bulunamadı, önce siteyi bir kere açman gerekiyor.");
+
+        var emre = null;
+        for (var i = 0; i < config.barbers.length; i++) {
+          if (config.barbers[i].name.toLocaleUpperCase("tr").indexOf("EMRE") !== -1) {
+            emre = config.barbers[i];
+            break;
+          }
+        }
+        if (!emre) {
+          emre = {
+            id: uid(), name: "Emre ŞORBA", workStart: 540, workEnd: 1140,
+            breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6],
+          };
+          config.barbers.push(emre);
+          log("✅ Yeni berber eklendi: Emre ŞORBA");
+        } else {
+          log("ℹ️ Emre ŞORBA zaten mevcut.");
+        }
+
+        var priceUpdates = { "Saç Kesimi": 500, "Saç + Sakal": 700 };
+        config.services = config.services.map(function (s) {
+          if (priceUpdates[s.name] && s.price !== priceUpdates[s.name]) {
+            log("✅ Fiyat güncellendi: " + s.name + " " + s.price + "₺ → " + priceUpdates[s.name] + "₺");
+            return Object.assign({}, s, { price: priceUpdates[s.name] });
+          }
+          return s;
+        });
+
+        return setDoc("shop-config", config);
+      })
+      .then(function () {
+        for (var j = 0; j < NEW_APPTS.length; j++) {
+          var item = NEW_APPTS[j];
+          var barber = null, service = null, k;
+          for (k = 0; k < config.barbers.length; k++) {
+            if (config.barbers[k].name.toLocaleUpperCase("tr") === item.barber.toLocaleUpperCase("tr")) { barber = config.barbers[k]; break; }
+          }
+          for (k = 0; k < config.services.length; k++) {
+            if (config.services[k].name.toLocaleUpperCase("tr") === item.service.toLocaleUpperCase("tr")) { service = config.services[k]; break; }
+          }
+          if (!barber || !service) {
+            log("❌ Atlandı (" + item.name + "): berber veya hizmet bulunamadı.");
+            continue;
+          }
+
+          var customer = null;
+          for (k = 0; k < customers.length; k++) {
+            if (customers[k].name.toLocaleUpperCase("tr") === item.name.toLocaleUpperCase("tr")) { customer = customers[k]; break; }
+          }
+          if (!customer) {
+            customer = { id: uid(), name: item.name, phone: "", hasBooked: true };
+            customers.push(customer);
+          } else {
+            customer.hasBooked = true;
+          }
+
+          appointments.push({
+            id: uid(),
+            customerId: customer.id,
+            customerName: item.name,
+            phone: customer.phone || "",
+            barberId: barber.id,
+            serviceIds: [service.id],
+            date: DATE,
+            startMinutes: timeToMinutes(item.time),
+            durationMinutes: service.duration,
+            status: "confirmed",
+            createdAt: new Date().toISOString(),
+          });
+          log("✅ Eklendi: " + item.time + " — " + item.name + " (" + item.barber + ")");
+        }
+
+        return Promise.all([
+          setDoc("appointments", appointments),
+          setDoc("customers", customers),
+          setDoc(BATCH_ID, { done: true, at: new Date().toISOString() }),
+        ]);
+      })
+      .then(function () {
+        log("\n🎉 Tamamlandı! Artık admin panelinde görebilirsin.");
+        btn.disabled = false;
+      })
+      .catch(function (e) {
+        log("❌ Hata: " + (e && e.message ? e.message : String(e)));
+        btn.disabled = false;
+      });
+  });
+}
+
+document.getElementById("runBtn").addEventListener("click", runImport);
+</script>
+</body>
+</html>
