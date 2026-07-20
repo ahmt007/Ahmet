@@ -38,13 +38,89 @@ var BATCH_ID = "batch-2026-07-20-v1";
 var DATE = "2026-07-20";
 
 var NEW_APPTS = [
-  { time: "11:00", name: "Mahir Duman",     service: "Saç + Sakal", barber: "Efe KARA" },
-  { time: "12:00", name: "Delikan Sözer",   service: "Saç + Sakal", barber: "Emre ŞORBA" },
-  { time: "14:00", name: "Gökhan Çelimli",  service: "Saç Kesimi",  barber: "Ahmet TEKELİ" },
-  { time: "14:30", name: "Emlak Mehmet",    service: "Saç + Sakal", barber: "Ahmet TEKELİ" },
-  { time: "16:00", name: "Ömer Bilgin",     service: "Saç + Sakal", barber: "Ahmet TEKELİ" },
-  { time: "17:30", name: "Çağlar",          service: "Saç + Sakal", barber: "Ahmet TEKELİ" },
-  { time: "19:00", name: "Baran Domaç",     service: "Saç + Sakal", barber: "Ahmet TEKELİ" },
+(async () => {
+  const BATCH_ID = "batch-2026-07-20-v1";
+  const existingBatch = await storageGet(BATCH_ID, true);
+  if (existingBatch) {
+    console.log("Bu randevular zaten eklenmiş.");
+    return;
+  }
+
+  const NEW_APPTS = [
+    { time: "11:00", name: "Mahir Duman", service: "Saç + Sakal", barber: "Efe KARA" },
+    { time: "12:00", name: "Delikan Sözer", service: "Saç + Sakal", barber: "Emre ŞORBA" },
+    { time: "14:00", name: "Gökhan Çelimli", service: "Saç Kesimi", barber: "AHMET TEKELİ" },
+    { time: "14:30", name: "Emlak Mehmet", service: "Saç + Sakal", barber: "AHMET TEKELİ" },
+    { time: "15:30", name: "Said Guliyev", service: "Saç Kesimi", barber: "AHMET TEKELİ" },
+    { time: "16:00", name: "Ömer Bilgin", service: "Saç + Sakal", barber: "AHMET TEKELİ" },
+    { time: "17:00", name: "Ata Sezer Aydoğan", service: "Saç Kesimi", barber: "AHMET TEKELİ" },
+    { time: "17:30", name: "Çağlar", service: "Saç + Sakal", barber: "AHMET TEKELİ" },
+    { time: "18:30", name: "Nuri Oktay", service: "Saç Kesimi", barber: "AHMET TEKELİ" },
+    { time: "19:00", name: "Baran Domaç", service: "Saç + Sakal", barber: "AHMET TEKELİ" },
+    { time: "20:00", name: "Sefa Sevinç", service: "Saç + Sakal", barber: "AHMET TEKELİ" },
+    { time: "09:30", name: "Salih Samet Tunçkılıç", service: "Saç + Sakal", barber: "AHMET TEKELİ", date: "2026-07-21" },
+    { time: "12:30", name: "Nejdet", service: "Saç + Sakal", barber: "AHMET TEKELİ", date: "2026-07-21" },
+    { time: "19:00", name: "Bedirhan", service: "Saç Kesimi", barber: "AHMET TEKELİ", date: "2026-07-21" },
+    { time: "09:30", name: "Musa Aygün", service: "Saç + Sakal", barber: "AHMET TEKELİ", date: "2026-07-23" }
+  ];
+
+  function timeStrToMinutes(str) {
+    const [h, m] = str.split(":").map(Number);
+    return h * 60 + m;
+  }
+
+  let conf = await storageGet("shop-config", true) || DEFAULT_CONFIG;
+  let appts = await storageGet("appointments", true) || [];
+  let custs = await storageGet("customers", true) || [];
+
+  // Emre Şorba kontrolü ve eklenmesi
+  let emre = conf.barbers.find(b => b.name.toUpperCase().includes("EMRE"));
+  if (!emre) {
+    emre = { id: uid(), name: "Emre Şorba", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1,2,3,4,5,6] };
+    conf.barbers.push(emre);
+  }
+
+  // Fiyat güncellemeleri
+  const prices = { "Saç Kesimi": 500, "Saç + Sakal": 700 };
+  conf.services = conf.services.map(s => prices[s.name] ? { ...s, price: prices[s.name] } : s);
+
+  NEW_APPTS.forEach(item => {
+    const targetDate = item.date || "2026-07-20";
+    const barber = conf.barbers.find(b => b.name.toLocaleUpperCase("tr") === item.barber.toLocaleUpperCase("tr"));
+    const service = conf.services.find(s => s.name.toLocaleUpperCase("tr") === item.service.toLocaleUpperCase("tr"));
+    if (!barber || !service) return;
+
+    let cust = custs.find(c => c.name.toLocaleUpperCase("tr") === item.name.toLocaleUpperCase("tr"));
+    if (!cust) {
+      cust = { id: uid(), name: item.name, phone: "", hasBooked: true };
+      custs.push(cust);
+    } else {
+      cust.hasBooked = true;
+    }
+
+    appts.push({
+      id: uid(),
+      customerId: cust.id,
+      customerName: item.name,
+      phone: cust.phone || "",
+      barberId: barber.id,
+      serviceIds: [service.id],
+      date: targetDate,
+      startMinutes: timeStrToMinutes(item.time),
+      durationMinutes: service.duration,
+      status: "confirmed",
+      createdAt: new Date().toISOString()
+    });
+  });
+
+  await storageSet("shop-config", conf, true);
+  await storageSet("appointments", appts, true);
+  await storageSet("customers", custs, true);
+  await storageSet(BATCH_ID, { done: true }, true);
+  
+  console.log("Tüm randevular başarıyla yüklendi! Sayfayı yenileyebilirsiniz.");
+})();
+,
 ];
 
 function timeToMinutes(t) {
