@@ -137,7 +137,7 @@ const DEFAULT_CONFIG = {
   barbers: [
     { id: "b1", name: "Efe KARA", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] },
     { id: "b2", name: "Ahmet TEKEL\u0130", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] },
-    { id: "b3", name: "Emre ŞORBA", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] }
+    { id: "b3", name: "Mert YILMAZ", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] }
   ],
   services: [
     { id: "s1", name: "Sa\xE7 Kesimi", duration: 30, price: 250 },
@@ -214,8 +214,22 @@ function BerberRandevuSistemi() {
   const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [appointments, setAppointments] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [view, setView] = useState("login");
-  const [currentCustomer, setCurrentCustomer] = useState(null);
+  const [view, setView] = useState(() => {
+    try {
+      if (localStorage.getItem("berberAdminSession") === "true") return "admin";
+      if (localStorage.getItem("berberCustomerSession")) return "booking";
+    } catch (e) {
+    }
+    return "login";
+  });
+  const [currentCustomer, setCurrentCustomer] = useState(() => {
+    try {
+      const raw = localStorage.getItem("berberCustomerSession");
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  });
   const [toast, setToast] = useState(null);
   const [loginName, setLoginName] = useState("");
   const [loginPhone, setLoginPhone] = useState("");
@@ -225,8 +239,22 @@ function BerberRandevuSistemi() {
   const [date, setDate] = useState(todayISO());
   const [time, setTime] = useState(null);
   const [customerTab, setCustomerTab] = useState("book");
-  const [bookName, setBookName] = useState("");
-  const [bookPhone, setBookPhone] = useState("");
+  const [bookName, setBookName] = useState(() => {
+    try {
+      const raw = localStorage.getItem("berberCustomerSession");
+      return raw ? JSON.parse(raw).name : "";
+    } catch (e) {
+      return "";
+    }
+  });
+  const [bookPhone, setBookPhone] = useState(() => {
+    try {
+      const raw = localStorage.getItem("berberCustomerSession");
+      return raw ? JSON.parse(raw).phone : "";
+    } catch (e) {
+      return "";
+    }
+  });
   const [adminPass, setAdminPass] = useState("");
   const [adminPassVisible, setAdminPassVisible] = useState(false);
   const [adminError, setAdminError] = useState("");
@@ -318,10 +346,18 @@ function BerberRandevuSistemi() {
     setCurrentCustomer(existing);
     setBookName(existing.name);
     setBookPhone(existing.phone);
+    try {
+      localStorage.setItem("berberCustomerSession", JSON.stringify(existing));
+    } catch (e2) {
+    }
     setView("booking");
     setCustomerTab("book");
   }
   function handleLogout() {
+    try {
+      localStorage.removeItem("berberCustomerSession");
+    } catch (e) {
+    }
     setCurrentCustomer(null);
     setBarberId("");
     setServiceIds([]);
@@ -436,14 +472,25 @@ function BerberRandevuSistemi() {
   }
   function handleAdminLogin(e) {
     e.preventDefault();
-    if (adminPass === (config.business.adminPassword || "ahmet07")) {
+    if (adminPass === (config.business.adminPassword || "berber1881")) {
       setAdminError("");
       setAdminPass("");
+      try {
+        localStorage.setItem("berberAdminSession", "true");
+      } catch (e2) {
+      }
       setView("admin");
       setAdminTab("appointments");
     } else {
       setAdminError("\u015Eifre hatal\u0131.");
     }
+  }
+  function handleAdminLogout() {
+    try {
+      localStorage.removeItem("berberAdminSession");
+    } catch (e) {
+    }
+    setView("login");
   }
   async function setApptStatus(id, status) {
     await persistAppointments(appointments.map((a) => a.id === id ? __spreadProps(__spreadValues({}, a), { status }) : a));
@@ -544,6 +591,66 @@ function BerberRandevuSistemi() {
     setNewAdminPass("");
     showToast("success", "Ayarlar kaydedildi.");
   }
+  async function runSeedImport() {
+    const BATCH_ID = "batch-2026-07-20-v1";
+    const already = await storageGet(BATCH_ID, true);
+    if (already) {
+      showToast("error", "Bu randevu grubu daha \xF6nce eklenmi\u015F.");
+      return;
+    }
+    const NEW_APPTS = [
+      { time: "11:00", name: "Mahir Duman", service: "Sa\xE7 + Sakal", barber: "Efe KARA" },
+      { time: "12:00", name: "Delikan S\xF6zer", service: "Sa\xE7 + Sakal", barber: "Emre \u015EORBA" },
+      { time: "14:00", name: "G\xF6khan \xC7elimli", service: "Sa\xE7 Kesimi", barber: "Ahmet TEKEL\u0130" },
+      { time: "14:30", name: "Emlak Mehmet", service: "Sa\xE7 + Sakal", barber: "Ahmet TEKEL\u0130" },
+      { time: "16:00", name: "\xD6mer Bilgin", service: "Sa\xE7 + Sakal", barber: "Ahmet TEKEL\u0130" },
+      { time: "17:30", name: "\xC7a\u011Flar", service: "Sa\xE7 + Sakal", barber: "Ahmet TEKEL\u0130" },
+      { time: "19:00", name: "Baran Doma\xE7", service: "Sa\xE7 + Sakal", barber: "Ahmet TEKEL\u0130" }
+    ];
+    const DATE = "2026-07-20";
+    let nextConfig = __spreadProps(__spreadValues({}, config), { barbers: [...config.barbers], services: [...config.services] });
+    let emre = nextConfig.barbers.find((b) => b.name.toLocaleUpperCase("tr").includes("EMRE"));
+    if (!emre) {
+      emre = { id: uid(), name: "Emre \u015EORBA", workStart: 540, workEnd: 1140, breaks: [{ start: 780, end: 840 }], workDays: [1, 2, 3, 4, 5, 6] };
+      nextConfig.barbers.push(emre);
+    }
+    const priceUpdates = { "Sa\xE7 Kesimi": 500, "Sa\xE7 + Sakal": 700 };
+    nextConfig.services = nextConfig.services.map(
+      (s) => priceUpdates[s.name] && s.price !== priceUpdates[s.name] ? __spreadProps(__spreadValues({}, s), { price: priceUpdates[s.name] }) : s
+    );
+    let nextAppointments = [...appointments];
+    let nextCustomers = [...customers];
+    NEW_APPTS.forEach((item) => {
+      const barber = nextConfig.barbers.find((b) => b.name.toLocaleUpperCase("tr") === item.barber.toLocaleUpperCase("tr"));
+      const service = nextConfig.services.find((s) => s.name.toLocaleUpperCase("tr") === item.service.toLocaleUpperCase("tr"));
+      if (!barber || !service) return;
+      let customer = nextCustomers.find((c) => c.name.toLocaleUpperCase("tr") === item.name.toLocaleUpperCase("tr"));
+      if (!customer) {
+        customer = { id: uid(), name: item.name, phone: "", hasBooked: true };
+        nextCustomers = [...nextCustomers, customer];
+      } else {
+        nextCustomers = nextCustomers.map((c) => c.id === customer.id ? __spreadProps(__spreadValues({}, c), { hasBooked: true }) : c);
+      }
+      nextAppointments = [...nextAppointments, {
+        id: uid(),
+        customerId: customer.id,
+        customerName: item.name,
+        phone: customer.phone || "",
+        barberId: barber.id,
+        serviceIds: [service.id],
+        date: DATE,
+        startMinutes: timeStrToMinutes(item.time),
+        durationMinutes: service.duration,
+        status: "confirmed",
+        createdAt: (/* @__PURE__ */ new Date()).toISOString()
+      }];
+    });
+    await persistConfig(nextConfig);
+    await persistAppointments(nextAppointments);
+    await persistCustomers(nextCustomers);
+    await storageSet(BATCH_ID, { done: true }, true);
+    showToast("success", "20 Temmuz randevular\u0131 eklendi!");
+  }
   function barberName(id) {
     var _a;
     return ((_a = config.barbers.find((b) => b.id === id)) == null ? void 0 : _a.name) || "\u2014";
@@ -601,13 +708,20 @@ function BerberRandevuSistemi() {
   return /* @__PURE__ */ React.createElement("div", { className: "min-h-screen relative overflow-x-hidden", style: { background: "linear-gradient(180deg,#8a8a86 0%,#5b5a56 35%,#2c2b29 75%,#1a1918 100%)", minHeight: "100dvh" } }, /* @__PURE__ */ React.createElement("div", { className: "pointer-events-none absolute inset-0 overflow-hidden opacity-50" }, /* @__PURE__ */ React.createElement("div", { className: "absolute -top-24 -left-16 w-96 h-96 bg-stone-400 rounded-full blur-3xl" }), /* @__PURE__ */ React.createElement("div", { className: "absolute top-32 right-0 w-80 h-80 bg-stone-600 rounded-full blur-3xl" }), /* @__PURE__ */ React.createElement("div", { className: "absolute bottom-0 left-1/4 w-96 h-96 bg-black rounded-full blur-3xl" })), /* @__PURE__ */ React.createElement("div", { className: "relative z-10 flex justify-between items-center px-6 max-w-md mx-auto", style: { paddingTop: "max(1.5rem, env(safe-area-inset-top))" } }, /* @__PURE__ */ React.createElement("div", null, view === "booking" && /* @__PURE__ */ React.createElement("button", { onClick: handleLogout, className: "flex items-center gap-1 text-sm font-semibold text-stone-200 bg-white/10 rounded-full px-4 py-2" }, /* @__PURE__ */ React.createElement(LogOut, { size: 15 }), " \xC7\u0131k\u0131\u015F"), view === "admin" && /* @__PURE__ */ React.createElement("button", { onClick: () => setView("login"), className: "flex items-center gap-1 text-sm font-semibold text-stone-200 bg-white/10 rounded-full px-4 py-2" }, /* @__PURE__ */ React.createElement(ArrowLeft, { size: 15 }), " Ana Sayfa")), view === "login" && /* @__PURE__ */ React.createElement(
     "button",
     {
-      onClick: () => setView("adminLogin"),
+      onClick: () => {
+        try {
+          if (localStorage.getItem("berberAdminSession") === "true") {
+            setView("admin");
+            return;
+          }
+        } catch (e) {
+        }
+        setView("adminLogin");
+      },
       className: "bg-white text-stone-900 font-bold rounded-2xl px-5 py-2.5 shadow-lg text-sm"
     },
     "Admin Giri\u015Fi"
-  ), view === "admin" && /* @__PURE__ */ React.createElement("button", { onClick: () => {
-    setView("login");
-  }, className: "flex items-center gap-1 text-sm font-semibold text-white bg-stone-900/60 rounded-full px-4 py-2" }, /* @__PURE__ */ React.createElement(LogOut, { size: 15 }), " \xC7\u0131k\u0131\u015F Yap")), view !== "admin" && view !== "adminLogin" && /* @__PURE__ */ React.createElement("div", { className: "relative z-10 flex justify-center mt-2" }, /* @__PURE__ */ React.createElement(
+  ), view === "admin" && /* @__PURE__ */ React.createElement("button", { onClick: handleAdminLogout, className: "flex items-center gap-1 text-sm font-semibold text-white bg-stone-900/60 rounded-full px-4 py-2" }, /* @__PURE__ */ React.createElement(LogOut, { size: 15 }), " \xC7\u0131k\u0131\u015F Yap")), view !== "admin" && view !== "adminLogin" && /* @__PURE__ */ React.createElement("div", { className: "relative z-10 flex justify-center mt-2" }, /* @__PURE__ */ React.createElement(
     "img",
     {
       src: LOGO_DATA_URI,
@@ -886,7 +1000,7 @@ function BerberRandevuSistemi() {
       placeholder: "Yeni \u015Fifre (bo\u015F b\u0131rak\u0131l\u0131rsa de\u011Fi\u015Fmez)",
       className: "w-full bg-transparent py-3 text-stone-800 placeholder-stone-400 outline-none text-sm"
     }
-  ), /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => setAdminPassVisible((v) => !v), className: "text-stone-400" }, adminPassVisible ? /* @__PURE__ */ React.createElement(EyeOff, { size: 16 }) : /* @__PURE__ */ React.createElement(Eye, { size: 16 })))), /* @__PURE__ */ React.createElement("button", { onClick: saveSettings, className: "w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-3.5 shadow-lg" }, "Ayarlar\u0131 Kaydet"))))), confirmDialog && /* @__PURE__ */ React.createElement("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6" }, /* @__PURE__ */ React.createElement("div", { className: "bg-white rounded-2xl p-5 max-w-sm w-full shadow-2xl" }, /* @__PURE__ */ React.createElement("p", { className: "text-stone-800 font-medium mb-5" }, confirmDialog.message), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ React.createElement(
+  ), /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => setAdminPassVisible((v) => !v), className: "text-stone-400" }, adminPassVisible ? /* @__PURE__ */ React.createElement(EyeOff, { size: 16 }) : /* @__PURE__ */ React.createElement(Eye, { size: 16 })))), /* @__PURE__ */ React.createElement("button", { onClick: saveSettings, className: "w-full bg-gradient-to-r from-amber-400 via-amber-600 to-yellow-800 text-white font-bold rounded-xl py-3.5 shadow-lg" }, "Ayarlar\u0131 Kaydet"), /* @__PURE__ */ React.createElement("div", { className: "border-t border-stone-200 pt-4" }, /* @__PURE__ */ React.createElement("label", { className: "block text-stone-800 font-bold mb-2 text-sm" }, "Toplu Randevu \u0130\xE7e Aktarma"), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-stone-400 mb-3" }, "20 Temmuz 2026 tarihli 7 randevuyu (ve Emre \u015EORBA'y\u0131) tek seferlik olarak sisteme ekler."), /* @__PURE__ */ React.createElement("button", { onClick: runSeedImport, className: "w-full bg-stone-800 text-white font-semibold rounded-xl py-3 text-sm" }, "20 Temmuz Randevular\u0131n\u0131 Ekle")))))), confirmDialog && /* @__PURE__ */ React.createElement("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6" }, /* @__PURE__ */ React.createElement("div", { className: "bg-white rounded-2xl p-5 max-w-sm w-full shadow-2xl" }, /* @__PURE__ */ React.createElement("p", { className: "text-stone-800 font-medium mb-5" }, confirmDialog.message), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ React.createElement(
     "button",
     {
       onClick: () => setConfirmDialog(null),
