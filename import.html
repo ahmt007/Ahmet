@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Toplu Randevu İçe Aktarma</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  body { font-family: -apple-system, sans-serif; background:#1c1917; color:#e7e5e4; padding:20px; max-width:560px; margin:0 auto; }
+  h1 { font-size:17px; }
+  p { color:#a8a29e; font-size:13px; line-height:1.5; }
+  textarea { width:100%; box-sizing:border-box; min-height:220px; background:#292524; color:#e7e5e4;
+    border:1px solid #44403c; border-radius:10px; padding:12px; font-size:13px; font-family: ui-monospace, monospace; }
+  button { background:linear-gradient(135deg,#fbbf24,#92400e); color:#fff; font-weight:700; border:none;
+    padding:14px 20px; border-radius:12px; font-size:15px; width:100%; margin-top:14px; }
+  button:disabled { opacity: .5; }
+  #log { margin-top:16px; font-size:13px; line-height:1.6; white-space:pre-wrap; background:#292524; padding:14px; border-radius:10px; max-height:340px; overflow-y:auto; }
+</style>
+</head>
+<body>
+<h1>Ahmet Tekeli — Toplu Randevu İçe Aktarma</h1>
+<p>Randevu listesini (WhatsApp'tan gelen aynı formatta) aşağıya yapıştır ve butona bas. Bu aracı defalarca kullanabilirsin — <b>zaten eklenmiş olan randevuları otomatik olarak atlar</b>, aynı listeyi tekrar yapıştırsan bile mükerrer eklemez.</p>
+<p>Beklenen format (her satır):<br><code>21 Tem 2026 09:30 | Ad Soyad | Hizmet Adı | BERBER ADI | 700₺</code></p>
+<textarea id="input" placeholder="Randevu listesini buraya yapıştır..."></textarea>
+<button id="runBtn">Randevuları İçe Aktar</button>
+<div id="log"></div>
+
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyDlWAiOEvyP-bVPwjPBVxT6MMfRdFrG3g0",
+  authDomain: "berberim2-fff64.firebaseapp.com",
+  projectId: "berberim2-fff64",
+  storageBucket: "berberim2-fff64.firebasestorage.app",
+  messagingSenderId: "1009883427797",
+  appId: "1:1009883427797:web:8b68a4e5afb9a5738ec35c",
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+var MONTHS = {
+  "oca": 1, "şub": 2, "sub": 2, "mar": 3, "nis": 4, "may": 5, "haz": 6,
+  "tem": 7, "ağu": 8, "agu": 8, "eyl": 9, "eki": 10, "kas": 11, "ara": 12
+};
+
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+function parseLine(line) {
+  // 21 Tem 2026 09:30 | Ad Soyad | Hizmet | BERBER | 700₺
+  var m = line.match(/^\s*(\d{1,2})\s+(\S+)\s+(\d{4})\s+(\d{1,2}:\d{2})\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*(\d+)/);
+  if (!m) return null;
+  var day = Number(m[1]);
+  var monthKey = m[2].toLocaleLowerCase("tr");
+  var month = MONTHS[monthKey];
+  if (!month) return null;
+  var year = Number(m[3]);
+  var time = m[4];
+  var name = m[5].trim();
+  var service = m[6].trim();
+  var barber = m[7].trim();
+  var date = year + "-" + pad(month) + "-" + pad(day);
+  return { date: date, time: time, name: name, service: service, barber: barber };
+}
+
+function timeToMinutes(t) {
+  var parts = t.split(":");
+  return Number(parts[0]) * 60 + Number(parts[1]);
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+function log(msg) {
+  var el = document.getElementById("log");
+  el.textContent += msg + "\n";
+  el.scrollTop = el.scrollHeight;
+}
+function norm(s) {
+  return (s || "").toLocaleUpperCase("tr").replace(/\s+/g, " ").trim();
+}
+
+function getDoc(key) {
+  return db.collection("berberRandevu").doc(key).get().then(function (snap) {
+    return snap.exists ? JSON.parse(snap.data().value) : null;
+  });
+}
+function setDoc(key, value) {
+  return db.collection("berberRandevu").doc(key).set({ value: JSON.stringify(value) });
+}
+
+function runImport() {
+  var btn = document.getElementById("runBtn");
+  var raw = document.getElementById("input").value;
+  var lines = raw.split("\n").map(function (l) { return l.trim(); }).filter(function (l) { return l.length > 0; });
+
+  var items = [];
+  var badLines = 0;
+  for (var i = 0; i < lines.length; i++) {
+    var parsed = parseLine(lines[i]);
+    if (parsed) items.push(parsed);
+    else if (lines[i].indexOf("─") === -1 && lines[i].toLocaleUpperCase("tr").indexOf("KUAFÖRÜ") === -1) badLines++;
+  }
+
+  if (items.length === 0) {
+    document.getElementById("log").textContent = "❌ Hiçbir satır anlaşılamadı. Formatı kontrol et.";
+    return;
+  }
+
+  btn.disabled = true;
+  document.getElementById("log").textContent = "";
+  log(items.length + " satır okundu" + (badLines ? " (" + badLines + " satır anlaşılamadı, atlandı)" : "") + ". Veritabanı kontrol ediliyor...");
+
+  Promise.all([getDoc("shop-config"), getDoc("appointments"), getDoc("customers")])
+    .then(function (results) {
+      var config = results[0];
+      var appointments = results[1] || [];
+      var customers = results[2] || [];
+      if (!config) throw new Error("shop-config bulunamadı, önce siteyi bir kere açman gerekiyor.");
+
+      var added = 0, skipped = 0, failed = 0;
+
+      for (var j = 0; j < items.length; j++) {
+        var item = items[j];
+        var barber = null, service = null, k;
+        for (k = 0; k < config.barbers.length; k++) {
+          if (norm(config.barbers[k].name) === norm(item.barber)) { barber = config.barbers[k]; break; }
+        }
+        for (k = 0; k < config.services.length; k++) {
+          if (norm(config.services[k].name) === norm(item.service)) { service = config.services[k]; break; }
+        }
+        if (!barber || !service) {
+          log("❌ Atlandı (" + item.name + ", " + item.date + " " + item.time + "): " +
+            (!barber ? "berber '" + item.barber + "' bulunamadı" : "hizmet '" + item.service + "' bulunamadı"));
+          failed++;
+          continue;
+        }
+
+        var startMin = timeToMinutes(item.time);
+        var dup = false;
+        for (k = 0; k < appointments.length; k++) {
+          var a = appointments[k];
+          if (a.barberId === barber.id && a.date === item.date && a.startMinutes === startMin && a.status !== "cancelled") {
+            dup = true; break;
+          }
+        }
+        if (dup) {
+          log("⏭️ Zaten var: " + item.date + " " + item.time + " — " + item.name);
+          skipped++;
+          continue;
+        }
+
+        var customer = null;
+        for (k = 0; k < customers.length; k++) {
+          if (norm(customers[k].name) === norm(item.name)) { customer = customers[k]; break; }
+        }
+        if (!customer) {
+          customer = { id: uid(), name: item.name, phone: "", hasBooked: true };
+          customers.push(customer);
+        } else {
+          customer.hasBooked = true;
+        }
+
+        appointments.push({
+          id: uid(),
+          customerId: customer.id,
+          customerName: item.name,
+          phone: customer.phone || "",
+          barberId: barber.id,
+          serviceIds: [service.id],
+          date: item.date,
+          startMinutes: startMin,
+          durationMinutes: service.duration,
+          status: "confirmed",
+          createdAt: new Date().toISOString(),
+        });
+        log("✅ Eklendi: " + item.date + " " + item.time + " — " + item.name + " (" + item.barber + ")");
+        added++;
+      }
+
+      return Promise.all([
+        setDoc("appointments", appointments),
+        setDoc("customers", customers),
+      ]).then(function () {
+        log("\n🎉 Tamamlandı: " + added + " eklendi, " + skipped + " zaten vardı, " + failed + " başarısız.");
+      });
+    })
+    .catch(function (e) {
+      log("❌ Hata: " + (e && e.message ? e.message : String(e)));
+    })
+    .finally(function () {
+      btn.disabled = false;
+    });
+}
+
+document.getElementById("runBtn").addEventListener("click", runImport);
+</script>
+</body>
+</html>
